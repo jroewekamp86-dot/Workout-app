@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lift Log</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --border: #2e2e2e;
+    --accent: #c8f135;
+    --accent-dim: rgba(200, 241, 53, 0.12);
+    --text: #f0f0f0;
+    --muted: #888;
+    --danger: #ff4d4d;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'Inter', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  header h1 {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  header p {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    padding: 0 24px;
+  }
+
+  .tab {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    letter-spacing: 0.06em;
+    padding: 10px 0;
+    margin-right: 28px;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .view { display: none; padding: 20px 24px; }
+  .view.active { display: block; }
+
+  /* LOG VIEW */
+  .workout-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .workout-btn {
+    flex: 1;
+    padding: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .workout-btn.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .workout-btn small {
+    display: block;
+    font-family: var(--font-body);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+    opacity: 0.7;
+  }
+
+  .date-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .date-row label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .date-row input[type="date"] {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    padding: 8px 12px;
+    flex: 1;
+    colorscheme: dark;
+  }
+
+  .exercise-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .exercise-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .exercise-name {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    color: var(--text);
+  }
+
+  .exercise-meta {
+    font-size: 0.7rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .last-session {
+    font-size: 0.7rem;
+    color: var(--muted);
+    padding: 6px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .last-session span { color: var(--accent); font-weight: 600; }
+
+  .sets-area { padding: 12px 16px; }
+
+  .set-row {
+    display: grid;
+    grid-template-columns: 32px 1fr 1fr auto;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .set-num {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .set-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    padding: 8px 10px;
+    width: 100%;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+
+  .set-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .set-input::placeholder { color: var(--muted); font-size: 0.75rem; }
+
+  .set-done {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .set-done.checked {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+  }
+
+  .save-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: opacity 0.2s;
+  }
+
+  .save-btn:hover { opacity: 0.9; }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--accent);
+    color: #000;
+    padding: 12px 24px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: transform 0.3s ease;
+    z-index: 100;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* PROGRESS VIEW */
+  .exercise-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .ex-pick-btn {
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ex-pick-btn.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  .ex-pick-btn .tag {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    background: var(--accent-dim);
+    padding: 2px 7px;
+    border-radius: 99px;
+  }
+
+  .chart-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .chart-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .chart-subtitle {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+  }
+
+  canvas { width: 100% !important; }
+
+  .pb-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent-dim);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 99px;
+    margin-bottom: 12px;
+  }
+
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  .history-table th {
+    text-align: left;
+    color: var(--muted);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .history-table td {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .history-table td:last-child { text-align: right; color: var(--muted); }
+
+  .no-data {
+    text-align: center;
+    color: var(--muted);
+    padding: 40px 20px;
+    font-size: 0.85rem;
+  }
+
+  .no-data strong { display: block; font-size: 1.1rem; color: var(--text); margin-bottom: 6px; }
+
+  .section-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 10px;
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Lift Log</h1>
+  <p>Progressive Overload Tracker</p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('log')">Log</button>
+  <button class="tab" onclick="switchTab('progress')">Progress</button>
+</div>
+
+<div id="view-log" class="view active">
+  <div class="workout-selector">
+    <button class="workout-btn active" id="btn-a" onclick="selectWorkout('A')">
+      WORKOUT A
+      <small>Saturday</small>
+    </button>
+    <button class="workout-btn" id="btn-b" onclick="selectWorkout('B')">
+      WORKOUT B
+      <small>Wednesday</small>
+    </button>
+  </div>
+
+  <div class="date-row">
+    <label>Date</label>
+    <input type="date" id="session-date">
+  </div>
+
+  <div id="exercises-container"></div>
+
+  <button class="save-btn" onclick="saveSession()">SAVE SESSION</button>
+</div>
+
+<div id="view-progress" class="view">
+  <div class="section-label">Select Exercise</div>
+  <div class="exercise-picker" id="exercise-picker"></div>
+  <div id="progress-detail"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const WORKOUTS = {
+  A: [
+    { name: "Goblet Squat", category: "Squat", sets: 3, reps: 6 },
+    { name: "Dumbbell Bench Press", category: "Press", sets: 3, reps: 6 },
+    { name: "Reverse Lunge", category: "Lunge", sets: 3, reps: 6, perSide: true },
+    { name: "Single Arm DB Row", category: "Pull", sets: 3, reps: 6 },
+    { name: "Romanian Deadlift", category: "Bend", sets: 3, reps: 10 },
+    { name: "Dumbbell Curls", category: "Arms", sets: 3, reps: null, toFailure: true },
+    { name: "Deadbugs", category: "Core", sets: 3, reps: null, toFailure: true },
+  ],
+  B: [
+    { name: "Hip Thrusts", category: "Bend", sets: 3, reps: 6 },
+    { name: "Lat Pulldown", category: "Pull", sets: 3, reps: 6 },
+    { name: "Leg Press", category: "Squat", sets: 3, reps: 6 },
+    { name: "Overhead Press", category: "Press", sets: 3, reps: 6 },
+    { name: "Split Squat", category: "Lunge", sets: 3, reps: 10, perSide: true },
+    { name: "Tricep Extensions", category: "Arms", sets: 3, reps: null, toFailure: true },
+    { name: "Knee Raises", category: "Core", sets: 3, reps: null, toFailure: true },
+  ]
+};
+
+const ALL_EXERCISES = [...WORKOUTS.A, ...WORKOUTS.B];
+
+let currentWorkout = 'A';
+let selectedExercise = null;
+let sessions = JSON.parse(localStorage.getItem('liftlog_sessions') || '[]');
+
+function saveSessions() {
+  localStorage.setItem('liftlog_sessions', JSON.stringify(sessions));
+}
+
+// Init date
+document.getElementById('session-date').value = new Date().toISOString().split('T')[0];
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['log','progress'][i] === tab));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + tab).classList.add('active');
+  if (tab === 'progress') renderProgressPicker();
+}
+
+function selectWorkout(w) {
+  currentWorkout = w;
+  document.getElementById('btn-a').classList.toggle('active', w === 'A');
+  document.getElementById('btn-b').classList.toggle('active', w === 'B');
+  renderExercises();
+}
+
+function getLastSession(exerciseName) {
+  const prev = sessions.filter(s => s.exercise === exerciseName);
+  if (!prev.length) return null;
+  return prev[prev.length - 1];
+}
+
+function renderExercises() {
+  const container = document.getElementById('exercises-container');
+  container.innerHTML = '';
+  const exercises = WORKOUTS[currentWorkout];
+
+  exercises.forEach((ex, idx) => {
+    const last = getLastSession(ex.name);
+    const repLabel = ex.toFailure ? 'reps to failure' : `${ex.reps} reps${ex.perSide ? '/side' : ''}`;
+    const targetLabel = `${ex.sets} sets × ${repLabel}`;
+
+    let lastHtml = '';
+    if (last) {
+      const maxWeight = Math.max(...last.sets.map(s => parseFloat(s.weight) || 0));
+      lastHtml = `<div class="last-session">Last: <span>${maxWeight > 0 ? maxWeight + 'kg' : '—'}</span> on ${last.date}</div>`;
+    }
+
+    let setsHtml = '';
+    for (let i = 1; i <= ex.sets; i++) {
+      const lastWeight = last ? (last.sets[i-1]?.weight || '') : '';
+      const lastReps = last ? (last.sets[i-1]?.reps || '') : '';
+      setsHtml += `
+        <div class="set-row">
+          <div class="set-num">${i}</div>
+          <input class="set-input" type="number" placeholder="kg" min="0" step="0.5" id="w-${idx}-${i}" value="${lastWeight}">
+          <input class="set-input" type="number" placeholder="reps" min="0" id="r-${idx}-${i}" value="${lastReps}">
+          <button class="set-done" id="done-${idx}-${i}" onclick="toggleDone(${idx},${i})">✓</button>
+        </div>`;
+    }
+
+    container.innerHTML += `
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">${ex.name}</div>
+          <div class="exercise-meta">${targetLabel}</div>
+        </div>
+        ${lastHtml}
+        <div class="sets-area">${setsHtml}</div>
+      </div>`;
+  });
+}
+
+function toggleDone(exIdx, setNum) {
+  const btn = document.getElementById(`done-${exIdx}-${setNum}`);
+  btn.classList.toggle('checked');
+}
+
+function saveSession() {
+  const date = document.getElementById('session-date').value;
+  const exercises = WORKOUTS[currentWorkout];
+  let saved = 0;
+
+  exercises.forEach((ex, idx) => {
+    const sets = [];
+    let hasData = false;
+    for (let i = 1; i <= ex.sets; i++) {
+      const w = document.getElementById(`w-${idx}-${i}`)?.value;
+      const r = document.getElementById(`r-${idx}-${i}`)?.value;
+      if (w || r) hasData = true;
+      sets.push({ weight: w || '', reps: r || '' });
+    }
+    if (hasData) {
+      sessions.push({ exercise: ex.name, workout: currentWorkout, date, sets });
+      saved++;
+    }
+  });
+
+  saveSessions();
+  showToast(saved > 0 ? `Session saved! ${saved} exercises logged.` : 'No data entered to save.');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// PROGRESS
+function renderProgressPicker() {
+  const picker = document.getElementById('exercise-picker');
+  picker.innerHTML = '';
+  ALL_EXERCISES.forEach(ex => {
+    const btn = document.createElement('button');
+    btn.className = 'ex-pick-btn' + (selectedExercise === ex.name ? ' active' : '');
+    btn.innerHTML = `${ex.name} <span class="tag">${ex.category}</span>`;
+    btn.onclick = () => { selectedExercise = ex.name; renderProgressPicker(); renderProgress(); };
+    picker.appendChild(btn);
+  });
+  if (selectedExercise) renderProgress();
+}
+
+function renderProgress() {
+  const detail = document.getElementById('progress-detail');
+  const data = sessions.filter(s => s.exercise === selectedExercise);
+
+  if (!data.length) {
+    detail.innerHTML = `<div class="no-data"><strong>No sessions yet</strong>Log a session to see your progress here.</div>`;
+    return;
+  }
+
+  // Max weight per session
+  const points = data.map(s => ({
+    date: s.date,
+    maxWeight: Math.max(...s.sets.map(x => parseFloat(x.weight) || 0)),
+    totalReps: s.sets.reduce((a, x) => a + (parseInt(x.reps) || 0), 0)
+  }));
+
+  const pb = Math.max(...points.map(p => p.maxWeight));
+
+  // Simple SVG line chart
+  const w = 320, h = 140, pad = { t: 10, r: 10, b: 30, l: 36 };
+  const weights = points.map(p => p.maxWeight);
+  const minW = Math.min(...weights);
+  const maxW = Math.max(...weights);
+  const range = maxW - minW || 1;
+  const xStep = (w - pad.l - pad.r) / Math.max(points.length - 1, 1);
+
+  const toX = i => pad.l + i * xStep;
+  const toY = v => pad.t + (h - pad.t - pad.b) * (1 - (v - minW) / range);
+
+  let polyline = points.map((p, i) => `${toX(i)},${toY(p.maxWeight)}`).join(' ');
+  let dots = points.map((p, i) => `<circle cx="${toX(i)}" cy="${toY(p.maxWeight)}" r="4" fill="#c8f135"/>`).join('');
+  let labels = points.map((p, i) => `<text x="${toX(i)}" y="${h - 4}" text-anchor="middle" font-size="9" fill="#888">${p.date.slice(5)}</text>`).join('');
+
+  // Y axis labels
+  const yLabels = [minW, minW + range/2, maxW].map(v =>
+    `<text x="${pad.l - 4}" y="${toY(v) + 3}" text-anchor="end" font-size="9" fill="#888">${v}kg</text>`
+  ).join('');
+
+  const svg = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="width:100%;overflow:visible">
+    <polyline points="${polyline}" fill="none" stroke="#c8f135" stroke-width="2" stroke-linejoin="round"/>
+    ${dots}${labels}${yLabels}
+  </svg>`;
+
+  // History table
+  const rows = [...data].reverse().map(s => {
+    const maxW = Math.max(...s.sets.map(x => parseFloat(x.weight) || 0));
+    const totalR = s.sets.reduce((a, x) => a + (parseInt(x.reps) || 0), 0);
+    return `<tr><td>${s.date}</td><td>${maxW > 0 ? maxW + 'kg' : '—'}</td><td>${totalR} reps</td><td>${s.workout}</td></tr>`;
+  }).join('');
+
+  detail.innerHTML = `
+    ${pb > 0 ? `<div class="pb-badge">🏆 PB: ${pb}kg</div>` : ''}
+    <div class="chart-container">
+      <div class="chart-title">${selectedExercise}</div>
+      <div class="chart-subtitle">Max weight per session (kg)</div>
+      ${svg}
+    </div>
+    <div class="chart-container">
+      <div class="chart-title" style="font-size:0.9rem;font-family:var(--font-body);font-weight:600">Session History</div>
+      <table class="history-table">
+        <thead><tr><th>Date</th><th>Max Wt</th><th>Total Reps</th><th>Day</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+// Init
+renderExercises();
+</script>
+</body>
+</html>

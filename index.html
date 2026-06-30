@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Lift Log</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #242424; --surface3: #2e2e2e;
+    --border: #2e2e2e; --border2: #3a3a3a;
+    --accent: #c8f135; --accent-dim: rgba(200,241,53,0.12); --accent-dark: #a8cc20;
+    --text: #f0f0f0; --text2: #b0b0b0; --muted: #666;
+    --info: #4db8ff; --info-dim: rgba(77,184,255,0.1);
+    --warn: #ffaa33; --warn-dim: rgba(255,170,51,0.1);
+    --danger: #ff5555;
+    --success: #33ff99; --success-dim: rgba(51,255,153,0.1);
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --radius: 10px; --radius-sm: 6px;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; padding-bottom: 90px; -webkit-font-smoothing: antialiased; }
+
+  /* ── HEADER ── */
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 20px 10px; position: sticky; top: 0; z-index: 20; }
+  .header-row { display: flex; align-items: flex-start; justify-content: space-between; }
+  header h1 { font-family: var(--font-display); font-size: 2rem; letter-spacing: 0.05em; color: var(--accent); line-height: 1; }
+  .week-pill { font-size: 0.68rem; background: var(--warn-dim); border: 1px solid rgba(255,170,51,0.4); color: var(--warn); padding: 3px 10px; border-radius: 99px; font-weight: 600; letter-spacing: 0.05em; white-space: nowrap; margin-top: 4px; }
+  .header-sub { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.09em; margin-top: 3px; }
+
+  /* ── TABS ── */
+  .tabs { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 20px; gap: 4px; }
+  .tab { font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.07em; padding: 9px 4px; color: var(--muted); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; transition: color 0.2s, border-color 0.2s; margin-right: 20px; }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── VIEWS ── */
+  .view { display: none; padding: 16px 20px; }
+  .view.active { display: block; }
+
+  /* ── WEEK DOTS ── */
+  .block-band { background: var(--warn-dim); border: 1px solid rgba(255,170,51,0.2); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 16px; }
+  .block-band-label { font-family: var(--font-display); font-size: 0.9rem; letter-spacing: 0.07em; color: var(--warn); margin-bottom: 8px; }
+  .week-track { display: flex; gap: 5px; flex-wrap: wrap; }
+  .week-dot { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--muted); }
+  .week-dot.done { border-color: var(--accent); color: var(--accent); }
+  .week-dot.current { background: var(--warn); border-color: var(--warn); color: #000; }
+
+  /* ── WORKOUT SELECTOR ── */
+  .day-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .day-btn { padding: 13px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--muted); font-family: var(--font-display); font-size: 1.2rem; letter-spacing: 0.07em; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .day-btn small { display: block; font-family: var(--font-body); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; opacity: 0.6; }
+  .day-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+  /* ── DATE ── */
+  .date-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .date-row label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); white-space: nowrap; }
+  .date-row input[type="date"] { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: var(--font-body); font-size: 0.88rem; padding: 8px 12px; color-scheme: dark; }
+
+  /* ── EXERCISE CARD ── */
+  .ex-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
+  .ex-card-header { display: flex; align-items: center; padding: 11px 14px; border-bottom: 1px solid var(--border); gap: 10px; }
+  .ex-card-info { flex: 1; min-width: 0; }
+  .ex-card-name { font-family: var(--font-display); font-size: 1.05rem; letter-spacing: 0.05em; color: var(--text); line-height: 1.1; }
+  .ex-card-meta { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+  .ex-card-target { font-size: 0.7rem; color: var(--accent); font-weight: 600; white-space: nowrap; }
+  .info-btn { width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--border2); background: none; color: var(--muted); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+  .info-btn:hover, .info-btn:active { border-color: var(--info); color: var(--info); background: var(--info-dim); }
+
+  .last-bar { font-size: 0.68rem; color: var(--muted); padding: 5px 14px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+  .last-bar b { color: var(--accent); }
+  .suggest-bar { font-size: 0.7rem; color: var(--info); padding: 6px 14px; background: var(--info-dim); border-bottom: 1px solid rgba(77,184,255,0.15); display: flex; gap: 6px; align-items: flex-start; line-height: 1.4; }
+
+  .sets-wrap { padding: 10px 14px; }
+  .sets-head { display: grid; grid-template-columns: 26px 1fr 1fr 30px; gap: 6px; margin-bottom: 4px; }
+  .sets-head span { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; text-align: center; }
+  .set-row { display: grid; grid-template-columns: 26px 1fr 1fr 30px; gap: 6px; align-items: center; margin-bottom: 6px; }
+  .set-num { font-size: 0.68rem; color: var(--muted); text-align: center; font-weight: 700; }
+  .set-in { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: var(--font-body); font-size: 0.9rem; padding: 7px 6px; width: 100%; text-align: center; transition: border-color 0.15s; -webkit-appearance: none; }
+  .set-in:focus { outline: none; border-color: var(--accent); }
+  .set-in::placeholder { color: var(--muted); font-size: 0.72rem; }
+  .set-tick { width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--border2); background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.18s; color: var(--muted); font-size: 0.85rem; flex-shrink: 0; }
+  .set-tick.done { background: var(--accent); border-color: var(--accent); color: #000; }
+
+  /* ── SAVE BTN ── */
+  .save-btn { width: 100%; padding: 15px; background: var(--accent); color: #000; border: none; border-radius: var(--radius); font-family: var(--font-display); font-size: 1.35rem; letter-spacing: 0.09em; cursor: pointer; margin-top: 16px; transition: opacity 0.2s, transform 0.1s; }
+  .save-btn:active { transform: scale(0.98); }
+  .save-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  /* ── AI PANEL ── */
+  .ai-panel { background: var(--surface); border: 1px solid rgba(77,184,255,0.25); border-radius: var(--radius); margin-top: 16px; overflow: hidden; }
+  .ai-panel-hd { padding: 12px 14px; border-bottom: 1px solid var(--border); background: var(--info-dim); display: flex; align-items: center; gap: 8px; }
+  .ai-panel-hd h3 { font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.06em; color: var(--info); }
+  .ai-panel-hd p { font-size: 0.65rem; color: var(--muted); margin-top: 1px; }
+  .ai-panel-body { padding: 14px; }
+  .ai-item { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .ai-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .ai-item-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--accent); font-weight: 700; margin-bottom: 3px; }
+  .ai-item-text { font-size: 0.82rem; color: var(--text2); line-height: 1.5; }
+  .ai-loading { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 0.82rem; }
+  .spinner { width: 15px; height: 15px; border: 2px solid var(--border2); border-top-color: var(--info); border-radius: 50%; animation: spin 0.75s linear infinite; flex-shrink: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ai-error { color: var(--danger); font-size: 0.8rem; }
+
+  /* ── EXERCISE INFO BOTTOM SHEET ── */
+  .sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.25s; backdrop-filter: blur(2px); }
+  .sheet-overlay.open { opacity: 1; pointer-events: all; }
+  .sheet { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-radius: 18px 18px 0 0; border-top: 1px solid var(--border2); z-index: 51; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); max-height: 85vh; overflow-y: auto; padding-bottom: env(safe-area-inset-bottom, 20px); }
+  .sheet.open { transform: translateY(0); }
+  .sheet-handle { width: 36px; height: 4px; background: var(--border2); border-radius: 99px; margin: 10px auto 0; }
+  .sheet-inner { padding: 16px 20px 24px; }
+  .sheet-title { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 0.05em; color: var(--text); margin-bottom: 2px; }
+  .sheet-cat { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--accent); margin-bottom: 14px; }
+  .gif-container { background: var(--surface2); border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; min-height: 160px; display: flex; align-items: center; justify-content: center; position: relative; }
+  .gif-container img { width: 100%; display: block; border-radius: var(--radius); }
+  .illustration-frame { width: 100%; background: #fff; border-radius: var(--radius); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .illustration-frame img { width: 100%; display: block; }
+  .illustration-link { display: block; text-align: center; font-size: 0.68rem; color: var(--accent); padding: 8px 0 0; text-decoration: none; }
+  .gif-loading { color: var(--muted); font-size: 0.8rem; text-align: center; padding: 20px; }
+  .gif-fallback { color: var(--muted); font-size: 0.8rem; text-align: center; padding: 30px 20px; }
+  .gif-fallback .gif-emoji { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+  .tips-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--warn); font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .tip-item { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+  .tip-num { width: 20px; height: 20px; border-radius: 50%; background: var(--accent-dim); border: 1px solid var(--accent); color: var(--accent); font-size: 0.65rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .tip-text { font-size: 0.82rem; color: var(--text2); line-height: 1.5; }
+  .sheet-close { width: 100%; padding: 12px; background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--muted); font-family: var(--font-body); font-size: 0.85rem; cursor: pointer; margin-top: 16px; }
+
+  /* ── FEEDBACK MODAL ── */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 60; display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal { background: var(--surface); border-radius: 18px 18px 0 0; border-top: 1px solid var(--border2); width: 100%; max-height: 90vh; overflow-y: auto; padding: 20px 20px 36px; transform: translateY(40px); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-handle { width: 36px; height: 4px; background: var(--border2); border-radius: 99px; margin: 0 auto 16px; }
+  .modal h2 { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 0.05em; color: var(--accent); margin-bottom: 4px; }
+  .modal p { font-size: 0.8rem; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+  .feedback-section { margin-bottom: 20px; }
+  .feedback-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text2); font-weight: 600; margin-bottom: 8px; }
+  .star-row { display: flex; gap: 8px; }
+  .star-btn { font-size: 1.6rem; cursor: pointer; transition: transform 0.15s; background: none; border: none; padding: 2px; }
+  .star-btn.active { transform: scale(1.2); }
+  .emoji-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .emoji-btn { padding: 8px 14px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 99px; font-size: 0.8rem; color: var(--muted); cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 5px; }
+  .emoji-btn.selected { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+  .feedback-textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: var(--font-body); font-size: 0.85rem; padding: 10px 12px; min-height: 80px; resize: vertical; line-height: 1.5; }
+  .feedback-textarea:focus { outline: none; border-color: var(--accent); }
+  .feedback-textarea::placeholder { color: var(--muted); }
+  .modal-submit { width: 100%; padding: 14px; background: var(--accent); color: #000; border: none; border-radius: var(--radius); font-family: var(--font-display); font-size: 1.3rem; letter-spacing: 0.08em; cursor: pointer; margin-top: 8px; }
+  .modal-skip { width: 100%; padding: 10px; background: none; border: none; color: var(--muted); font-size: 0.8rem; cursor: pointer; margin-top: 6px; }
+
+  /* ── TOAST ── */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--accent); color: #000; padding: 11px 22px; border-radius: 99px; font-weight: 600; font-size: 0.82rem; z-index: 100; transition: transform 0.3s ease; white-space: nowrap; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── PROGRESS TAB ── */
+  .filter-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .filter-pill { padding: 5px 12px; border-radius: 99px; border: 1px solid var(--border); background: none; color: var(--muted); font-size: 0.72rem; cursor: pointer; transition: all 0.15s; }
+  .filter-pill.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+  .ex-pick-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .ex-pick-item { padding: 11px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--muted); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.15s; }
+  .ex-pick-item.active { background: var(--accent-dim); border-color: var(--accent); color: var(--text); }
+  .ex-pick-item .ctag { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); background: var(--accent-dim); padding: 2px 8px; border-radius: 99px; }
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; }
+  .chart-card-title { font-family: var(--font-display); font-size: 1.1rem; letter-spacing: 0.05em; margin-bottom: 2px; }
+  .chart-card-sub { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+  .pb-pill { display: inline-flex; align-items: center; gap: 5px; background: var(--accent-dim); border: 1px solid var(--accent); color: var(--accent); font-size: 0.72rem; font-weight: 700; padding: 3px 11px; border-radius: 99px; margin-bottom: 10px; }
+  .hist-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  .hist-table th { text-align: left; color: var(--muted); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 5px 0; border-bottom: 1px solid var(--border); }
+  .hist-table td { padding: 7px 0; border-bottom: 1px solid var(--border); color: var(--text); }
+  .hist-table td:last-child { text-align: right; color: var(--muted); }
+  .no-data { text-align: center; color: var(--muted); padding: 36px 20px; }
+  .no-data strong { display: block; font-size: 1rem; color: var(--text); margin-bottom: 6px; }
+
+  /* ── PROGRAM TAB ── */
+  .prog-progress-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 20px; }
+  .prog-bar-track { background: var(--surface2); border-radius: 99px; height: 6px; overflow: hidden; margin: 8px 0; }
+  .prog-bar-fill { background: var(--accent); height: 100%; border-radius: 99px; transition: width 0.6s ease; }
+  .block-card { margin-bottom: 20px; }
+  .block-card-label { font-family: var(--font-display); font-size: 1.2rem; letter-spacing: 0.06em; margin-bottom: 2px; }
+  .block-card-weeks { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px; }
+  .block-card-label.curr { color: var(--warn); }
+  .block-card-weeks.curr { color: var(--warn); }
+  .block-days { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .block-day { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px; }
+  .block-day.curr { border-color: rgba(255,170,51,0.4); }
+  .block-day-label { font-family: var(--font-display); font-size: 0.85rem; letter-spacing: 0.06em; color: var(--accent); margin-bottom: 6px; }
+  .block-ex-row { font-size: 0.72rem; color: var(--text2); margin-bottom: 3px; line-height: 1.3; }
+  .block-ex-sets { font-size: 0.6rem; color: var(--muted); }
+
+  .section-lbl { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-row">
+    <div>
+      <h1>Lift Log</h1>
+      <div class="header-sub">Progressive Overload Tracker</div>
+    </div>
+    <div class="week-pill" id="week-pill">Week 1 · Block 1</div>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('log')">Log</button>
+  <button class="tab" onclick="switchTab('progress')">Progress</button>
+  <button class="tab" onclick="switchTab('program')">Program</button>
+</div>
+
+<!-- LOG TAB -->
+<div id="view-log" class="view active">
+  <div class="block-band">
+    <div class="block-band-label" id="block-label">Block 1: Foundation · Weeks 1–4</div>
+    <div class="week-track" id="week-track"></div>
+  </div>
+  <div class="day-selector">
+    <button class="day-btn active" id="btn-a" onclick="selectDay('A')">WORKOUT A<small>Saturday</small></button>
+    <button class="day-btn" id="btn-b" onclick="selectDay('B')">WORKOUT B<small>Wednesday</small></button>
+  </div>
+  <div class="date-row">
+    <label>Date</label>
+    <input type="date" id="session-date">
+  </div>
+  <div id="ex-container"></div>
+  <button class="save-btn" id="save-btn" onclick="saveSession()">SAVE SESSION</button>
+  <div id="ai-container"></div>
+</div>
+
+<!-- PROGRESS TAB -->
+<div id="view-progress" class="view">
+  <div class="section-lbl">Filter by category</div>
+  <div class="filter-row" id="prog-filters"></div>
+  <div class="ex-pick-list" id="ex-pick-list"></div>
+  <div id="prog-detail"></div>
+</div>
+
+<!-- PROGRAM TAB -->
+<div id="view-program" class="view">
+  <div id="prog-overview"></div>
+</div>
+
+<!-- EXERCISE INFO SHEET -->
+<div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-inner">
+    <div class="sheet-title" id="sheet-title">Exercise</div>
+    <div class="sheet-cat" id="sheet-cat"></div>
+    <div class="gif-container" id="gif-container">
+      <div class="gif-loading">Loading demo...</div>
+    </div>
+    <div class="tips-label">⚡ Form Tips</div>
+    <div id="sheet-tips"></div>
+    <button class="sheet-close" onclick="closeSheet()">Close</button>
+  </div>
+</div>
+
+<!-- FEEDBACK MODAL -->
+<div class="modal-overlay" id="feedback-overlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>Session Complete 💪</h2>
+    <p>Quick feedback helps your AI coach personalise next week's targets and adjust exercises if needed.</p>
+
+    <div class="feedback-section">
+      <div class="feedback-label">How hard was today overall?</div>
+      <div class="star-row" id="star-row">
+        <button class="star-btn" data-v="1" onclick="setStar(1)">⭐</button>
+        <button class="star-btn" data-v="2" onclick="setStar(2)">⭐</button>
+        <button class="star-btn" data-v="3" onclick="setStar(3)">⭐</button>
+        <button class="star-btn" data-v="4" onclick="setStar(4)">⭐</button>
+        <button class="star-btn" data-v="5" onclick="setStar(5)">⭐</button>
+      </div>
+    </div>
+
+    <div class="feedback-section">
+      <div class="feedback-label">How did your body feel?</div>
+      <div class="emoji-row" id="feel-row">
+        <button class="emoji-btn" data-v="fresh" onclick="toggleFeel(this)">🔋 Fresh</button>
+        <button class="emoji-btn" data-v="tired" onclick="toggleFeel(this)">😴 Tired</button>
+        <button class="emoji-btn" data-v="sore" onclick="toggleFeel(this)">🦵 Sore</button>
+        <button class="emoji-btn" data-v="strong" onclick="toggleFeel(this)">💪 Strong</button>
+        <button class="emoji-btn" data-v="pain" onclick="toggleFeel(this)">⚠️ Pain/discomfort</button>
+      </div>
+    </div>
+
+    <div class="feedback-section">
+      <div class="feedback-label">Any exercises too easy, too hard, or want to swap?</div>
+      <textarea class="feedback-textarea" id="feedback-notes" placeholder="e.g. Hip thrusts felt too easy — ready to add weight. Knee raises hurt my lower back."></textarea>
+    </div>
+
+    <button class="modal-submit" onclick="submitFeedback()">SEND TO AI COACH</button>
+    <button class="modal-skip" onclick="closeFeedback()">Skip for now</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// EXERCISE LIBRARY WITH TIPS + GIF SEARCH TERMS
+// ══════════════════════════════════════════════════════════════
+const EX_INFO = {
+  "Goblet Squat": {
+    gif: "goblet+squat+exercise",
+    tips: ["Hold dumbbell vertically at chest, elbows pointing down", "Feet shoulder-width apart, toes slightly out", "Drive knees out over toes as you descend", "Keep chest tall, don't fold forward", "Drive through heels to stand — squeeze glutes at top"]
+  },
+  "Dumbbell Bench Press": {
+    gif: "dumbbell+bench+press+exercise",
+    tips: ["Lie flat, dumbbells at chest level, elbows at ~45°", "Press up and slightly together — don't flare elbows wide", "Control the descent — 2 seconds down", "Keep shoulder blades retracted and feet flat on floor", "Full range: lower until upper arms are parallel to floor"]
+  },
+  "Reverse Lunge": {
+    gif: "reverse+lunge+exercise",
+    tips: ["Step directly back — keep front foot firmly planted", "Lower back knee toward floor without touching", "Front shin stays vertical — knee over ankle, not toes", "Drive through front heel to return to standing", "Squeeze front glute at the top of each rep"]
+  },
+  "Lat Pulldown": {
+    gif: "lat+pulldown+exercise",
+    tips: ["Grip just outside shoulder width, slight lean back", "Pull bar to upper chest — lead with elbows down and back", "Squeeze shoulder blades together at the bottom", "Control the bar on the way up — don't let it yank you", "Avoid shrugging — keep shoulders depressed throughout"]
+  },
+  "Romanian Deadlift (DB)": {
+    gif: "romanian+deadlift+dumbbell+exercise",
+    tips: ["Soft bend in knees throughout — this is a hip hinge, not a squat", "Push hips back as dumbbells lower along your legs", "Feel the hamstring stretch before reversing", "Keep back flat — no rounding of the lower back", "Squeeze glutes hard as you drive hips forward to stand"]
+  },
+  "Dumbbell Curls": {
+    gif: "dumbbell+bicep+curl+exercise",
+    tips: ["Keep elbows pinned to sides — don't swing", "Supinate (rotate) the wrist as you curl up", "Fully extend at the bottom — don't cut the range", "Control the negative — 2 seconds down", "No momentum from the hips or back"]
+  },
+  "Deadbugs": {
+    gif: "dead+bug+exercise+core",
+    tips: ["Press lower back firmly into the floor throughout", "Opposite arm and leg lower simultaneously — slow and controlled", "Don't let your lower back arch — that's the whole point", "Exhale as you lower, inhale to reset", "Start with small range until you can maintain contact"]
+  },
+  "Hip Thrusts": {
+    gif: "hip+thrust+exercise+glutes",
+    tips: ["Upper back rests on bench, bar or pad sits at hip crease", "Feet flat, hip-width apart, knees bent ~90° at top", "Drive through heels — not toes — to thrust hips up", "Squeeze glutes HARD at the top, chin tucked", "Don't hyperextend the lower back — ribs down"]
+  },
+  "Single Arm DB Row": {
+    gif: "single+arm+dumbbell+row+exercise",
+    tips: ["Brace on bench — keep back parallel to floor", "Pull elbow straight back — think elbow to hip", "Don't rotate the torso to get the weight up", "Full extension at the bottom — let the shoulder blade protract", "Squeeze the lat at the top of each rep"]
+  },
+  "Leg Press": {
+    gif: "leg+press+machine+exercise",
+    tips: ["Feet hip-width, mid-plate — not too high or low", "Lower until knees reach ~90° — no lower if hips tuck", "Drive through full foot — don't rise onto toes", "Don't lock knees out at the top — keep tension on quads", "Higher foot placement = more glute and hamstring emphasis"]
+  },
+  "Overhead Press (DB)": {
+    gif: "dumbbell+overhead+press+exercise",
+    tips: ["Start with dumbbells at shoulder height, palms forward", "Press directly overhead — slight forward arc is fine", "Brace your core — don't arch your lower back", "Fully extend without shrugging at the top", "Control the descent — 2 seconds back to start"]
+  },
+  "Split Squat": {
+    gif: "bulgarian+split+squat+exercise",
+    tips: ["Rear foot elevated or on floor — front foot far enough forward", "Lower straight down — front knee tracks over toes", "Most weight on the front foot — rear leg stabilises only", "Keep torso upright — slight forward lean is OK", "Drive through front heel to stand, squeeze front glute"]
+  },
+  "Tricep Extensions (DB)": {
+    gif: "tricep+extension+dumbbell+exercise",
+    tips: ["Keep elbows pointed forward — don't let them flare", "Lower dumbbell behind head with control", "Only the forearms move — upper arms stay still", "Fully extend at the top without locking hard", "Use a weight you can control through full range"]
+  },
+  "Knee Raises": {
+    gif: "hanging+knee+raise+exercise",
+    tips: ["Hang or sit — control the movement, no swinging", "Exhale and compress the abs as knees rise", "Don't use momentum — slow and intentional", "Lower legs with control — resist gravity on the way down", "If hanging, keep shoulders engaged — don't just hang passively"]
+  },
+  "Back Squat": {
+    gif: "back+squat+barbell+exercise",
+    tips: ["Bar sits on upper traps (high bar) or rear delts (low bar)", "Brace hard — big breath, tight core before descent", "Knees track over toes — push them out", "Hit depth: hip crease below parallel", "Drive through full foot — don't let heels rise"]
+  },
+  "Bench Press (BB)": {
+    gif: "barbell+bench+press+exercise",
+    tips: ["Retract shoulder blades — create a stable base", "Bar path: lower to nipple line, slight arc on press", "Elbows at ~45-75° — not straight out", "Feet flat on floor, drive through legs slightly", "Full touch on chest — don't bounce or half-rep"]
+  },
+  "Staggered Stance RDL (DB)": {
+    gif: "single+leg+romanian+deadlift+dumbbell",
+    tips: ["Back foot toes lightly touch floor for balance only", "Hinge at the hip — push working leg's hip back", "Dumbbells lower close to the leg of the working side", "Keep hips square to the floor — don't rotate open", "Feel the single-leg hamstring stretch before reversing"]
+  },
+  "Row (Barbell)": {
+    gif: "barbell+bent+over+row+exercise",
+    tips: ["Hinge to ~45° — this is a hip hinge, not a squat", "Pull bar to lower chest or navel depending on grip", "Lead with elbows — don't pull with biceps", "Keep back flat throughout — no rounding", "Control the negative — don't just drop the bar"]
+  },
+  "Deadlift (Bar)": {
+    gif: "barbell+deadlift+exercise+form",
+    tips: ["Bar over mid-foot, hip-width stance", "Hinge to grip, brace hard before pulling", "Push the floor away — think leg press, not pull", "Bar stays in contact with legs the whole way up", "Lock out by driving hips through — squeeze glutes at top"]
+  },
+  "Cable Curls": {
+    gif: "cable+bicep+curl+exercise",
+    tips: ["Set cable low, use straight or EZ bar attachment", "Elbows stay pinned to sides throughout", "Full stretch at the bottom — let the weight pull you open", "Squeeze hard at the top", "Slow eccentric — fight the cable down"]
+  },
+  "Sit Ups": {
+    gif: "sit+up+exercise+core",
+    tips: ["Feet anchored or free — both are valid variations", "Curl up through the spine — don't yank the neck", "Focus on the abs doing the work, not hip flexors", "Lower slowly — 2-3 seconds down", "Try arms across chest to reduce momentum"]
+  },
+  "Row (Cable)": {
+    gif: "seated+cable+row+exercise",
+    tips: ["Sit tall with a slight natural lean back", "Pull handle to navel — keep elbows close to body", "Squeeze shoulder blades together at the end", "Full extension forward before each rep — shoulders protract", "Don't use lower back momentum to row"]
+  },
+  "Box Squat (BB)": {
+    gif: "box+squat+barbell+exercise",
+    tips: ["Sit back to the box — wider stance than regular squat", "Touch and go — don't rest full weight on box", "Keep shins more vertical than a regular squat", "Drive knees out as you sit and as you stand", "Box height: ideally at or just below parallel"]
+  },
+  "Overhead Press (BB)": {
+    gif: "barbell+overhead+press+exercise",
+    tips: ["Grip just outside shoulder width, elbows slightly forward", "Brace core — don't arch back to press", "Bar path: straight up — move head back slightly then return", "Fully lock out at top without shrugging", "Control descent back to shoulder level"]
+  },
+  "Step Ups": {
+    gif: "step+up+exercise+legs",
+    tips: ["Step height: knee at ~90° when foot is on box", "Drive through the heel on the box — not your toe off floor", "Avoid pushing off the back foot — make the working leg do it", "Keep torso upright throughout", "Lower with control — slow negatives build more muscle"]
+  },
+  "Crunch": {
+    gif: "crunch+exercise+abs",
+    tips: ["Hands behind head — don't pull the neck", "Curl shoulders toward hips — not head toward knees", "Exhale and compress abs at the top", "Keep lower back on the floor — small range is fine", "Focus on quality over quantity — squeeze at top of each rep"]
+  },
+  "Carries": {
+    gif: "farmer+carry+exercise",
+    tips: ["Stand tall — don't let the weight pull you sideways", "Short, quick steps — control the sway", "Brace your core like you're about to take a punch", "Keep shoulders level and retracted", "Start lighter than you think — it gets hard fast"]
+  },
+  "Deadlift (KB)": {
+    gif: "kettlebell+deadlift+exercise",
+    tips: ["KB between feet, hip-width stance", "Hinge at the hip — push hips back, knees soft", "Keep back flat as you grip the handle", "Drive through full foot to stand, hips and shoulders rise together", "Squeeze glutes and lock out at top — don't hyperextend"]
+  },
+  "Single Arm Row (Cable)": {
+    gif: "single+arm+cable+row+exercise",
+    tips: ["Stand or kneel — keep torso stable, don't rotate", "Pull handle to hip — elbow drives straight back", "Feel the lat engage, not just the bicep", "Full stretch at the start — let shoulder blade protract", "Control the return — slow and steady wins"]
+  },
+  "Overhead Press (Machine)": {
+    gif: "machine+shoulder+press+exercise",
+    tips: ["Adjust seat so handles are at shoulder height", "Press directly up without arching back", "Keep core braced — don't lean back for leverage", "Fully extend without shrugging at the top", "Control the weight — don't let it slam back down"]
+  },
+  "Staggered Stance RDL (Cable)": {
+    gif: "cable+single+leg+rdl+exercise",
+    tips: ["Cable set low, hold handle on opposite side to working leg", "Slight bend in working knee, hinge at the hip", "Feel the hamstring load on the working leg", "Keep hips square — don't rotate toward the cable", "Return to stand by squeezing the glute — don't just pull with back"]
+  },
+  "Tricep Extensions (Cable)": {
+    gif: "cable+tricep+pushdown+exercise",
+    tips: ["Rope or straight bar — set cable high", "Elbows pinned to sides — only forearms move", "Push all the way to full extension — squeeze triceps hard", "Control the return — don't let the cable yank your arms up", "Slight forward lean is fine — don't round your back"]
+  },
+  "Romanian Deadlift (Bar)": {
+    gif: "barbell+romanian+deadlift+exercise",
+    tips: ["Start standing with bar at hips", "Push hips back — bar slides down thighs", "Soft knee bend throughout — not a squat", "Feel hamstrings load — go to mid-shin or until back wants to round", "Drive hips through to stand — glutes lead the movement"]
+  },
+  "Tricep Extensions (BB)": {
+    gif: "skull+crusher+barbell+exercise",
+    tips: ["Lying or seated — elbows point toward ceiling", "Lower the bar to forehead level — elbows track inward", "Only the forearms move — upper arms stay vertical", "Extend fully without locking elbows aggressively", "Use EZ bar to reduce wrist strain if needed"]
+  },
+  "Bench Press (DB)": {
+    gif: "dumbbell+chest+press+exercise",
+    tips: ["Same as BB bench but greater range of motion", "Let dumbbells come slightly below chest level at bottom", "Press up and slightly inward — arc toward each other", "Keep shoulder blades retracted throughout", "The extra stretch = more chest recruitment — use it"]
+  },
+  "Forward Lunge": {
+    gif: "forward+lunge+exercise",
+    tips: ["Step forward, lower back knee toward floor", "Front shin stays close to vertical", "Push back to start through front heel", "Keep torso upright — don't lean forward", "Alternate legs or work one side at a time"]
+  },
+  "Bench Press (Machine)": {
+    gif: "machine+chest+press+exercise",
+    tips: ["Adjust seat so handles are at mid-chest height", "Keep back flat against pad — don't arch excessively", "Press forward and slightly in — don't flare elbows", "Full range: handles close to chest at start", "Control the return — don't just let it rebound"]
+  },
+  "Row (Machine)": {
+    gif: "machine+row+exercise+back",
+    tips: ["Chest pad supports you — use it, don't fight it", "Pull handles toward lower chest or navel", "Squeeze shoulder blades at end of pull", "Full stretch forward before each rep", "Keep neck neutral — don't crane forward"]
+  },
+  "Box Squat (DB)": {
+    gif: "dumbbell+box+squat+exercise",
+    tips: ["Hold dumbbells at sides or on shoulders", "Sit back to box, feet wider than hip width", "Touch and pause briefly — don't relax", "Drive knees out as you stand", "Useful for learning to sit back and load the posterior chain"]
+  },
+  "Single Arm Row (Machine)": {
+    gif: "machine+single+arm+row+exercise",
+    tips: ["Set the machine for one arm at a time if possible", "Sit or stand stable — minimise rotation", "Pull elbow back and slightly down toward hip", "Full range: let the shoulder blade slide forward at start", "Keep the movement slow and deliberate"]
+  }
+};
+
+// ══════════════════════════════════════════════════════════════
+// WORKOUT BLOCKS
+// ══════════════════════════════════════════════════════════════
+const BLOCKS = [
+  {
+    label: "Block 1: Foundation", weeks: "Weeks 1–4",
+    A: [
+      { name:"Goblet Squat", cat:"Squat", sets:3, reps:6 },
+      { name:"Dumbbell Bench Press", cat:"Push", sets:3, reps:6 },
+      { name:"Reverse Lunge", cat:"Single Leg", sets:3, reps:6, perSide:true },
+      { name:"Lat Pulldown", cat:"Pull", sets:3, reps:6 },
+      { name:"Romanian Deadlift (DB)", cat:"Bend", sets:3, reps:10 },
+      { name:"Dumbbell Curls", cat:"Arms", sets:3, toFailure:true },
+      { name:"Deadbugs", cat:"Core", sets:3, toFailure:true }
+    ],
+    B: [
+      { name:"Hip Thrusts", cat:"Bend", sets:3, reps:6 },
+      { name:"Single Arm DB Row", cat:"Pull", sets:3, reps:6 },
+      { name:"Leg Press", cat:"Squat", sets:3, reps:6 },
+      { name:"Overhead Press (DB)", cat:"Push", sets:3, reps:6 },
+      { name:"Split Squat", cat:"Single Leg", sets:3, reps:10, perSide:true },
+      { name:"Tricep Extensions (DB)", cat:"Arms", sets:3, toFailure:true },
+      { name:"Knee Raises", cat:"Core", sets:3, toFailure:true }
+    ]
+  },
+  {
+    label: "Block 2: Build", weeks: "Weeks 5–8",
+    A: [
+      { name:"Back Squat", cat:"Squat", sets:3, reps:6 },
+      { name:"Bench Press (BB)", cat:"Push", sets:3, reps:6 },
+      { name:"Staggered Stance RDL (DB)", cat:"Single Leg", sets:3, reps:8, perSide:true },
+      { name:"Row (Barbell)", cat:"Pull", sets:3, reps:6 },
+      { name:"Deadlift (Bar)", cat:"Bend", sets:3, reps:6 },
+      { name:"Cable Curls", cat:"Arms", sets:3, toFailure:true },
+      { name:"Sit Ups", cat:"Core", sets:3, toFailure:true }
+    ],
+    B: [
+      { name:"Romanian Deadlift (Bar)", cat:"Bend", sets:3, reps:8 },
+      { name:"Row (Cable)", cat:"Pull", sets:3, reps:8 },
+      { name:"Box Squat (BB)", cat:"Squat", sets:3, reps:6 },
+      { name:"Overhead Press (BB)", cat:"Push", sets:3, reps:6 },
+      { name:"Step Ups", cat:"Single Leg", sets:3, reps:10, perSide:true },
+      { name:"Tricep Extensions (Cable)", cat:"Arms", sets:3, toFailure:true },
+      { name:"Crunch", cat:"Core", sets:3, toFailure:true }
+    ]
+  },
+  {
+    label: "Block 3: Strength", weeks: "Weeks 9–12",
+    A: [
+      { name:"Back Squat", cat:"Squat", sets:4, reps:5 },
+      { name:"Bench Press (DB)", cat:"Push", sets:4, reps:5 },
+      { name:"Forward Lunge", cat:"Single Leg", sets:3, reps:8, perSide:true },
+      { name:"Lat Pulldown", cat:"Pull", sets:4, reps:6 },
+      { name:"Deadlift (KB)", cat:"Bend", sets:4, reps:6 },
+      { name:"Cable Curls", cat:"Arms", sets:3, toFailure:true },
+      { name:"Carries", cat:"Core", sets:3, toFailure:true }
+    ],
+    B: [
+      { name:"Hip Thrusts", cat:"Bend", sets:4, reps:6 },
+      { name:"Single Arm Row (Cable)", cat:"Pull", sets:4, reps:6 },
+      { name:"Leg Press", cat:"Squat", sets:4, reps:8 },
+      { name:"Overhead Press (Machine)", cat:"Push", sets:4, reps:6 },
+      { name:"Staggered Stance RDL (Cable)", cat:"Single Leg", sets:3, reps:8, perSide:true },
+      { name:"Tricep Extensions (BB)", cat:"Arms", sets:3, toFailure:true },
+      { name:"Deadbugs", cat:"Core", sets:3, toFailure:true }
+    ]
+  },
+  {
+    label: "Block 4: Power & Variety", weeks: "Weeks 13–16",
+    A: [
+      { name:"Box Squat (DB)", cat:"Squat", sets:4, reps:5 },
+      { name:"Bench Press (Machine)", cat:"Push", sets:3, reps:8 },
+      { name:"Step Ups", cat:"Single Leg", sets:3, reps:10, perSide:true },
+      { name:"Row (Machine)", cat:"Pull", sets:4, reps:6 },
+      { name:"Romanian Deadlift (DB)", cat:"Bend", sets:4, reps:8 },
+      { name:"Cable Curls", cat:"Arms", sets:3, toFailure:true },
+      { name:"Knee Raises", cat:"Core", sets:3, toFailure:true }
+    ],
+    B: [
+      { name:"Hip Thrusts", cat:"Bend", sets:4, reps:8 },
+      { name:"Single Arm Row (Machine)", cat:"Pull", sets:3, reps:8 },
+      { name:"Goblet Squat", cat:"Squat", sets:3, reps:10 },
+      { name:"Overhead Press (DB)", cat:"Push", sets:3, reps:8 },
+      { name:"Staggered Stance RDL (DB)", cat:"Single Leg", sets:4, reps:8, perSide:true },
+      { name:"Tricep Extensions (DB)", cat:"Arms", sets:3, toFailure:true },
+      { name:"Sit Ups", cat:"Core", sets:3, toFailure:true }
+    ]
+  }
+];
+
+function getAllExercises() {
+  const seen = new Set(), all = [];
+  BLOCKS.forEach(b => [...b.A,...b.B].forEach(e => { if(!seen.has(e.name)){seen.add(e.name);all.push(e);}}));
+  return all;
+}
+
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+let currentDay = 'A';
+let selectedEx = null;
+let progFilter = 'All';
+let feedbackData = {};
+let starRating = 0;
+let feelSelections = [];
+let pendingSessionData = null;
+
+let sessions = JSON.parse(localStorage.getItem('ll_sessions') || '[]');
+let suggestions = JSON.parse(localStorage.getItem('ll_suggestions') || '{}');
+let feedbackLog = JSON.parse(localStorage.getItem('ll_feedback') || '[]');
+let programStart = localStorage.getItem('ll_start') || null;
+
+const save = () => localStorage.setItem('ll_sessions', JSON.stringify(sessions));
+const saveSug = () => localStorage.setItem('ll_suggestions', JSON.stringify(suggestions));
+const saveFb = () => localStorage.setItem('ll_feedback', JSON.stringify(feedbackLog));
+
+// ══════════════════════════════════════════════════════════════
+// WEEK / BLOCK HELPERS
+// ══════════════════════════════════════════════════════════════
+function getWeek() {
+  if (!programStart) return 1;
+  const diff = Math.floor((new Date() - new Date(programStart)) / 86400000);
+  return Math.min(Math.floor(diff / 7) + 1, 16);
+}
+function blockIdx(week) { return Math.min(Math.floor((week-1)/4), 3); }
+function currentBlock() { return BLOCKS[blockIdx(getWeek())]; }
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+document.getElementById('session-date').value = new Date().toISOString().split('T')[0];
+renderHeader(); renderWeekTrack(); renderExercises();
+
+function renderHeader() {
+  const w = getWeek(), bi = blockIdx(w);
+  document.getElementById('week-pill').textContent = `Week ${w} · Block ${bi+1}`;
+  document.getElementById('block-label').textContent = BLOCKS[bi].label + ' · ' + BLOCKS[bi].weeks;
+}
+
+function renderWeekTrack() {
+  const w = getWeek(), el = document.getElementById('week-track');
+  el.innerHTML = '';
+  for(let i=1;i<=16;i++){
+    const d = document.createElement('div');
+    d.className = 'week-dot' + (i===w?' current':i<w?' done':'');
+    d.textContent = i;
+    el.appendChild(d);
+  }
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['log','progress','program'][i]===tab));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+tab).classList.add('active');
+  if(tab==='progress') renderProgPicker();
+  if(tab==='program') renderProgramView();
+}
+
+function selectDay(d) {
+  currentDay = d;
+  document.getElementById('btn-a').classList.toggle('active', d==='A');
+  document.getElementById('btn-b').classList.toggle('active', d==='B');
+  document.getElementById('ai-container').innerHTML = '';
+  renderExercises();
+}
+
+function getLastSession(name) {
+  const s = sessions.filter(s=>s.exercise===name);
+  return s.length ? s[s.length-1] : null;
+}
+
+function renderExercises() {
+  const block = currentBlock();
+  const exercises = block[currentDay];
+  const container = document.getElementById('ex-container');
+  container.innerHTML = '';
+
+  exercises.forEach((ex, idx) => {
+    const last = getLastSession(ex.name);
+    const sug = suggestions[ex.name] || null;
+    const repLabel = ex.toFailure ? 'to failure' : `${ex.reps} reps${ex.perSide?' /side':''}`;
+    const targetLabel = `${ex.sets} × ${repLabel}`;
+
+    let lastHtml = '';
+    if(last) {
+      const mw = Math.max(...last.sets.map(s=>parseFloat(s.weight)||0));
+      lastHtml = `<div class="last-bar">Last: <b>${mw>0?mw+'kg':'BW'}</b> on ${last.date}</div>`;
+    }
+    let sugHtml = sug ? `<div class="suggest-bar">🤖 ${sug}</div>` : '';
+
+    let setsHtml = `<div class="sets-head"><span>#</span><span>kg</span><span>reps</span><span></span></div>`;
+    for(let i=1;i<=ex.sets;i++){
+      const lw = last?(last.sets[i-1]?.weight||''):'';
+      const lr = last?(last.sets[i-1]?.reps||''):'';
+      setsHtml += `<div class="set-row">
+        <div class="set-num">${i}</div>
+        <input class="set-in" type="number" placeholder="0" min="0" step="0.5" id="w-${idx}-${i}" value="${lw}">
+        <input class="set-in" type="number" placeholder="0" min="0" id="r-${idx}-${i}" value="${lr}">
+        <button class="set-tick" id="tick-${idx}-${i}" onclick="toggleTick(${idx},${i})">✓</button>
+      </div>`;
+    }
+
+    container.innerHTML += `<div class="ex-card">
+      <div class="ex-card-header">
+        <div class="ex-card-info">
+          <div class="ex-card-name">${ex.name}</div>
+          <div class="ex-card-meta">${ex.cat}</div>
+        </div>
+        <div class="ex-card-target">${targetLabel}</div>
+        <button class="info-btn" onclick="openSheet('${ex.name.replace(/'/g,"\\'")}','${ex.cat}')" title="Form tips & demo">ℹ️</button>
+      </div>
+      ${lastHtml}${sugHtml}
+      <div class="sets-wrap">${setsHtml}</div>
+    </div>`;
+  });
+}
+
+function toggleTick(ei, si) {
+  document.getElementById(`tick-${ei}-${si}`).classList.toggle('done');
+}
+
+// ══════════════════════════════════════════════════════════════
+// SAVE SESSION → OPEN FEEDBACK
+// ══════════════════════════════════════════════════════════════
+function saveSession() {
+  const date = document.getElementById('session-date').value;
+  const block = currentBlock();
+  const exercises = block[currentDay];
+  const sessionData = [];
+  let saved = 0;
+
+  if(!programStart) {
+    programStart = date;
+    localStorage.setItem('ll_start', programStart);
+    renderHeader(); renderWeekTrack();
+  }
+
+  exercises.forEach((ex, idx) => {
+    const sets = [];
+    let hasData = false;
+    for(let i=1;i<=ex.sets;i++){
+      const w = document.getElementById(`w-${idx}-${i}`)?.value||'';
+      const r = document.getElementById(`r-${idx}-${i}`)?.value||'';
+      if(w||r) hasData = true;
+      sets.push({weight:w, reps:r});
+    }
+    if(hasData) {
+      const w = getWeek(), bi = blockIdx(w);
+      sessions.push({exercise:ex.name, day:currentDay, date, sets, week:w, block:bi+1});
+      sessionData.push({...ex, sets});
+      saved++;
+    }
+  });
+
+  save();
+  if(saved===0){showToast('No data entered.'); return;}
+
+  pendingSessionData = sessionData;
+  showToast(`${saved} exercises saved!`);
+  setTimeout(() => openFeedback(), 600);
+}
+
+// ══════════════════════════════════════════════════════════════
+// EXERCISE INFO SHEET
+// ══════════════════════════════════════════════════════════════
+// ── Curated professional illustration guides (Simply Fitness exercise library) ──
+// Static, single-frame illustrations — clear, consistent, no embedding restrictions.
+// Verified exact filenames where confirmed; best-effort prediction elsewhere (onerror falls back gracefully).
+const SF_BASE = 'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/';
+const EX_GUIDE = {
+  "Goblet Squat":                  { slug:"dumbbell-goblet-squat",            img:"Dumbbell-Goblet-Squat" },
+  "Hip Thrusts":                   { slug:"barbell-hip-thrust",               img:"Barbell-Hip-Thrust" },
+  "Romanian Deadlift (DB)":        { slug:"dumbbell-stiff-leg-deadlift",      img:"Dumbbell-Romanian-Deadlift_35135213-e0df-4ef2-b093-22ed8d04dc41" },
+  "Romanian Deadlift (Bar)":       { slug:"barbell-stiff-leg-deadlift",       img:"Barbell-Romanian-Deadlift_34ede1b4-63ac-451d-9536-bbf9942b560c" },
+  "Lat Pulldown":                  { slug:"wide-grip-pulldown",               img:"Wide-Grip-Pulldown" },
+  "Back Squat":                    { slug:"squat",                            img:"Squat_d752e42d-02ba-4692-b300-c6e67ad5a4f5" },
+  "Box Squat (BB)":                { slug:"squat",                            img:"Squat_d752e42d-02ba-4692-b300-c6e67ad5a4f5" },
+  "Box Squat (DB)":                { slug:"dumbbell-goblet-squat",            img:"Dumbbell-Goblet-Squat" },
+  "Bench Press (BB)":              { slug:"barbell-bench-press",              img:"Barbell-Bench-Press" },
+  "Dumbbell Bench Press":          { slug:"dumbbell-bench-press",             img:"Dumbbell-Bench-Press" },
+  "Bench Press (DB)":              { slug:"dumbbell-bench-press",             img:"Dumbbell-Bench-Press" },
+  "Bench Press (Machine)":         { slug:"chest-press-machine",              img:"Chest-Press-Machine" },
+  "Overhead Press (DB)":           { slug:"dumbbell-shoulder-press",          img:"Dumbbell-Shoulder-Press" },
+  "Overhead Press (BB)":           { slug:"standing-barbell-shoulder-press",  img:"Standing-Barbell-Shoulder-Press" },
+  "Overhead Press (Machine)":      { slug:"smith-machine-shoulder-press",     img:"Smith-Machine-Shoulder-Press" },
+  "Deadlift (Bar)":                { slug:"barbell-deadlift",                 img:"Barbell-Deadlift" },
+  "Deadlift (KB)":                 { slug:"kettlebell-sumo-deadlift",         img:"Kettlebell-Sumo-Deadlift" },
+  "Split Squat":                   { slug:"bodyweight-bulgarian-split-squat", img:"Bodyweight-Bulgarian-Split-Squat" },
+  "Leg Press":                     { slug:"leg-press",                        img:"Leg-Press" },
+  "Row (Barbell)":                 { slug:"barbell-row",                      img:"Barbell-Row" },
+  "Row (Cable)":                   { slug:"seated-cable-row",                 img:"Seated-Cable-Row" },
+  "Row (Machine)":                 { slug:"seated-cable-row",                 img:"Seated-Cable-Row" },
+  "Single Arm DB Row":             { slug:"dumbbell-bent-over-row-single-arm",img:"Dumbbell-Bent-Over-Row-Single-Arm" },
+  "Single Arm Row (Cable)":        { slug:"dumbbell-bent-over-row-single-arm",img:"Dumbbell-Bent-Over-Row-Single-Arm" },
+  "Single Arm Row (Machine)":      { slug:"dumbbell-bent-over-row-single-arm",img:"Dumbbell-Bent-Over-Row-Single-Arm" },
+  "Dumbbell Curls":                { slug:"alternating-dumbbell-curl",        img:"Alternating-Dumbbell-Curl" },
+  "Cable Curls":                   { slug:"rope-cable-curl",                  img:"Rope-Cable-Curl" },
+  "Barbell Curls":                 { slug:"barbell-curl",                     img:"Barbell-Curl" },
+  "Tricep Extensions (DB)":        { slug:"dumbbell-overhead-triceps-extension", img:"Dumbbell-Overhead-Triceps-Extension" },
+  "Tricep Extensions (Cable)":     { slug:"triceps-pressdown",                img:"Triceps-Pressdown" },
+  "Tricep Extensions (BB)":        { slug:"seated-barbell-french-press",      img:"Seated-Barbell-French-Press" },
+  "Step Ups":                      { slug:"dumbbell-step-up",                 img:"Dumbbell-Step-Up" },
+  "Crunch":                        { slug:"crunch",                           img:"Crunch" },
+  "Sit Ups":                       { slug:"crunch",                           img:"Crunch" },
+  "Reverse Lunge":                 { slug:"lunge",                            img:"Lunge" },
+  "Forward Lunge":                 { slug:"lunge",                            img:"Lunge" },
+  "Knee Raises":                   { slug:"standing-knee-raise",              img:"Standing-Knee-Raise" },
+  "Deadbugs":                      { slug:"bird-dog",                         img:"Bird-Dog" },
+  "Staggered Stance RDL (DB)":     { slug:"dumbbell-stiff-leg-deadlift",      img:"Dumbbell-Romanian-Deadlift_35135213-e0df-4ef2-b093-22ed8d04dc41" },
+  "Staggered Stance RDL (Cable)":  { slug:"barbell-stiff-leg-deadlift",       img:"Barbell-Romanian-Deadlift_34ede1b4-63ac-451d-9536-bbf9942b560c" },
+};
+
+function openSheet(name, cat) {
+  const info = EX_INFO[name] || {};
+  document.getElementById('sheet-title').textContent = name;
+  document.getElementById('sheet-cat').textContent = cat;
+
+  // Tips
+  const tips = info.tips || ['Focus on controlled movement','Keep core braced throughout','Full range of motion','Breathe out on the effort','Quality over quantity'];
+  document.getElementById('sheet-tips').innerHTML = tips.map((t,i)=>
+    `<div class="tip-item"><div class="tip-num">${i+1}</div><div class="tip-text">${t}</div></div>`
+  ).join('');
+
+  // Curated professional illustration guide
+  const gifEl = document.getElementById('gif-container');
+  const guide = EX_GUIDE[name];
+
+  if (guide) {
+    const imgUrl = `${SF_BASE}${guide.img}_600x600.png`;
+    const guideUrl = `https://www.simplyfitness.com/pages/${guide.slug}`;
+    gifEl.innerHTML = `
+      <div>
+        <div class="illustration-frame">
+          <img src="${imgUrl}" alt="${name} form illustration" onerror="this.closest('.illustration-frame').parentElement.innerHTML='<div class=gif-fallback><span class=gif-emoji>🏋️</span><span>${name}</span><br><small style=opacity:0.4;margin-top:6px;display:block>Search &quot;${name}&quot; on YouTube for a demo</small></div>'">
+        </div>
+        <a class="illustration-link" href="${guideUrl}" target="_blank" rel="noopener">View full guide ↗</a>
+      </div>`;
+  } else {
+    gifEl.innerHTML = `<div class="gif-fallback"><span class="gif-emoji">🏋️</span><span>${name}</span><br><small style="opacity:0.4;margin-top:6px;display:block">Search "${name}" on YouTube for a demo</small></div>`;
+  }
+
+  document.getElementById('sheet-overlay').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSheet() {
+  document.getElementById('sheet-overlay').classList.remove('open');
+  document.getElementById('sheet').classList.remove('open');
+  document.body.style.overflow = '';
+  document.getElementById('gif-container').innerHTML = '';
+}
+
+
+
+// ══════════════════════════════════════════════════════════════
+// FEEDBACK MODAL
+// ══════════════════════════════════════════════════════════════
+function openFeedback() {
+  starRating = 0; feelSelections = [];
+  renderStars(0);
+  document.querySelectorAll('.emoji-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('feedback-notes').value = '';
+  document.getElementById('feedback-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeFeedback() {
+  document.getElementById('feedback-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  if(pendingSessionData) getAISuggestions(pendingSessionData, true);
+}
+
+function setStar(n) { starRating = n; renderStars(n); }
+function renderStars(n) {
+  document.querySelectorAll('.star-btn').forEach((b,i)=>{
+    b.textContent = i < n ? '⭐' : '☆';
+    b.classList.toggle('active', i < n);
+  });
+}
+
+function toggleFeel(btn) {
+  btn.classList.toggle('selected');
+  const v = btn.dataset.v;
+  feelSelections = feelSelections.includes(v) ? feelSelections.filter(x=>x!==v) : [...feelSelections,v];
+}
+
+async function submitFeedback() {
+  const notes = document.getElementById('feedback-notes').value.trim();
+  const fb = {
+    date: new Date().toISOString().split('T')[0],
+    difficulty: starRating,
+    feel: feelSelections,
+    notes,
+    week: getWeek(),
+    day: currentDay
+  };
+  feedbackLog.push(fb);
+  saveFb();
+  closeFeedback();
+  showToast('Feedback sent to AI coach!');
+  if(pendingSessionData) await getAISuggestions(pendingSessionData, false, fb);
+  pendingSessionData = null;
+}
+
+// ══════════════════════════════════════════════════════════════
+// AI SUGGESTIONS
+// ══════════════════════════════════════════════════════════════
+async function getAISuggestions(sessionData, skipFeedback=false, fb=null) {
+  const container = document.getElementById('ai-container');
+  container.innerHTML = `<div class="ai-panel">
+    <div class="ai-panel-hd"><div><h3>🤖 Next Session Targets</h3><p>Personalised coaching based on your session</p></div></div>
+    <div class="ai-panel-body"><div class="ai-loading"><div class="spinner"></div> Analysing...</div></div>
+  </div>`;
+
+  const week = getWeek();
+  const bi = blockIdx(week);
+  const block = BLOCKS[bi];
+
+  const histCtx = sessionData.map(ex => {
+    const all = sessions.filter(s=>s.exercise===ex.name).slice(-4);
+    const hist = all.map(s=>{
+      const mw = Math.max(...s.sets.map(x=>parseFloat(x.weight)||0));
+      const tr = s.sets.reduce((a,x)=>a+(parseInt(x.reps)||0),0);
+      return `${s.date}: ${mw}kg max, ${tr} total reps`;
+    }).join(' | ');
+    const today = ex.sets.map((s,i)=>`Set ${i+1}: ${s.weight||'BW'}kg×${s.reps||'?'}`).join(', ');
+    return `${ex.name}: Today[${today}] History:[${hist||'first session'}]`;
+  }).join('\n');
+
+  const recentFb = feedbackLog.slice(-3).map(f=>
+    `Week ${f.week} Day ${f.day}: Difficulty ${f.difficulty}/5, Felt: ${f.feel.join(',')||'not specified'}, Notes: "${f.notes||'none'}"`
+  ).join('\n');
+
+  const fbSection = fb
+    ? `\nToday's feedback: Difficulty ${fb.difficulty}/5, Felt: ${fb.feel.join(',')||'not specified'}, Notes: "${fb.notes||'none'}"`
+    : skipFeedback ? '\nNo feedback provided this session.' : '';
+
+  const nextWeek = week + 1;
+  const blockChange = nextWeek <= 16 && blockIdx(nextWeek) !== bi;
+  const blockNote = blockChange ? `\nNOTE: Next week starts ${BLOCKS[blockIdx(nextWeek)].label} — new exercises begin. Mention this.` : '';
+
+  const prompt = `You are a strength coach for someone doing a 2-day full body program with a glute focus. Week ${week} of 16, ${block.label}.${blockNote}
+
+Today's session:
+${histCtx}
+${fbSection}
+
+Recent feedback history:
+${recentFb || 'No previous feedback'}
+
+Instructions:
+- For each exercise give ONE specific next-session target (1 sentence max)
+- If user mentioned pain/discomfort with an exercise: suggest a regression or form adjustment
+- If user said exercise was too easy: suggest bigger weight jump than standard
+- If user mentioned wanting to swap an exercise: suggest the closest alternative from the original program options
+- Standard progression: all reps hit cleanly → add weight (2.5kg lower body, 1-2kg upper); missed reps → same weight, aim for more reps
+- For failure sets: aim for 1-2 more reps
+- Be encouraging and specific
+
+Respond ONLY as raw JSON (no markdown): {"Exercise Name": "suggestion"}`;
+
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    container.querySelector('.ai-panel-body').innerHTML = `<div class="ai-error">No API key set — add one in the Program tab to enable AI Coach. Your session is saved.</div>`;
+    return;
+  }
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:1000, messages:[{role:"user",content:prompt}]})
+    });
+    if (!res.ok) {
+      const errBody = await res.json().catch(()=>({}));
+      throw new Error(errBody?.error?.message || `API error ${res.status}`);
+    }
+    const data = await res.json();
+    const raw = data.content.map(c=>c.text||'').join('');
+    const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    Object.assign(suggestions, parsed);
+    saveSug();
+
+    const items = Object.entries(parsed).map(([name,text])=>
+      `<div class="ai-item"><div class="ai-item-label">${name}</div><div class="ai-item-text">${text}</div></div>`
+    ).join('');
+
+    container.innerHTML = `<div class="ai-panel">
+      <div class="ai-panel-hd"><div><h3>🤖 Next Session Targets</h3><p>These appear on each exercise next time</p></div></div>
+      <div class="ai-panel-body">${items}</div>
+    </div>`;
+  } catch(e) {
+    container.querySelector('.ai-panel-body').innerHTML = `<div class="ai-error">Couldn't load suggestions: ${e.message || 'unknown error'} — your session is saved.</div>`;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// PROGRESS TAB
+// ══════════════════════════════════════════════════════════════
+function renderProgPicker() {
+  const all = getAllExercises();
+  const cats = ['All', ...new Set(all.map(e=>e.cat))];
+  document.getElementById('prog-filters').innerHTML = cats.map(c=>
+    `<button class="filter-pill${progFilter===c?' active':''}" onclick="setProgFilter('${c}')">${c}</button>`
+  ).join('');
+
+  const filtered = progFilter==='All' ? all : all.filter(e=>e.cat===progFilter);
+  document.getElementById('ex-pick-list').innerHTML = filtered.map(ex => {
+    const hasSessions = sessions.some(s=>s.exercise===ex.name);
+    return `<div class="ex-pick-item${selectedEx===ex.name?' active':''}" onclick="selectEx('${ex.name.replace(/'/g,"\\'")}')">
+      <span>${ex.name}${!hasSessions?' <span style="opacity:0.35;font-size:0.7em">no data</span>':''}</span>
+      <span class="ctag">${ex.cat}</span>
+    </div>`;
+  }).join('');
+
+  if(selectedEx) renderProgress();
+}
+
+function setProgFilter(c) { progFilter = c; renderProgPicker(); }
+function selectEx(name) { selectedEx = name; renderProgPicker(); }
+
+function renderProgress() {
+  const detail = document.getElementById('prog-detail');
+  const data = sessions.filter(s=>s.exercise===selectedEx);
+  if(!data.length){
+    detail.innerHTML = `<div class="no-data"><strong>No sessions yet</strong>Log a session to see your progress.</div>`;
+    return;
+  }
+
+  const pts = data.map(s=>({
+    date:s.date,
+    mw:Math.max(...s.sets.map(x=>parseFloat(x.weight)||0)),
+    tr:s.sets.reduce((a,x)=>a+(parseInt(x.reps)||0),0)
+  }));
+  const pb = Math.max(...pts.map(p=>p.mw));
+
+  // SVG chart
+  const W=320,H=130,pd={t:8,r:8,b:28,l:34};
+  const ws=pts.map(p=>p.mw), minW=Math.min(...ws), maxW=Math.max(...ws), range=maxW-minW||1;
+  const xStep=(W-pd.l-pd.r)/Math.max(pts.length-1,1);
+  const toX=i=>pd.l+i*xStep;
+  const toY=v=>pd.t+(H-pd.t-pd.b)*(1-(v-minW)/range);
+  const poly=pts.map((p,i)=>`${toX(i)},${toY(p.mw)}`).join(' ');
+  const dots=pts.map((p,i)=>`<circle cx="${toX(i)}" cy="${toY(p.mw)}" r="4" fill="#c8f135"/>`).join('');
+  const xlbl=pts.map((p,i)=>`<text x="${toX(i)}" y="${H-4}" text-anchor="middle" font-size="8" fill="#666">${p.date.slice(5)}</text>`).join('');
+  const ylbl=[minW,minW+range/2,maxW].map(v=>`<text x="${pd.l-4}" y="${toY(v)+3}" text-anchor="end" font-size="8" fill="#666">${v}kg</text>`).join('');
+
+  const sug = suggestions[selectedEx];
+  const sugHtml = sug ? `<div class="chart-card" style="border-color:rgba(77,184,255,0.25);background:var(--info-dim)">
+    <div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--info);font-weight:700;margin-bottom:4px">🤖 Next Session Target</div>
+    <div style="font-size:0.82rem;color:var(--text2);line-height:1.5">${sug}</div>
+  </div>` : '';
+
+  const rows=[...data].reverse().map(s=>{
+    const mw=Math.max(...s.sets.map(x=>parseFloat(x.weight)||0));
+    const tr=s.sets.reduce((a,x)=>a+(parseInt(x.reps)||0),0);
+    return `<tr><td>${s.date}</td><td>${mw>0?mw+'kg':'BW'}</td><td>${tr}</td><td>B${s.block||1}</td></tr>`;
+  }).join('');
+
+  detail.innerHTML = `
+    ${pb>0?`<div class="pb-pill">🏆 PB: ${pb}kg</div>`:''}
+    ${sugHtml}
+    <div class="chart-card">
+      <div class="chart-card-title">${selectedEx}</div>
+      <div class="chart-card-sub">Max weight per session</div>
+      <svg viewBox="0 0 ${W} ${H}" style="width:100%;overflow:visible">
+        <polyline points="${poly}" fill="none" stroke="#c8f135" stroke-width="2" stroke-linejoin="round"/>
+        ${dots}${xlbl}${ylbl}
+      </svg>
+    </div>
+    <div class="chart-card">
+      <div style="font-size:0.88rem;font-weight:600;margin-bottom:10px">Session History</div>
+      <table class="hist-table">
+        <thead><tr><th>Date</th><th>Max Wt</th><th>Reps</th><th>Block</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// PROGRAM TAB
+// ══════════════════════════════════════════════════════════════
+function getApiKey() {
+  return localStorage.getItem('anthropicApiKey') || '';
+}
+
+function saveApiKey() {
+  const val = document.getElementById('api-key-input').value.trim();
+  if (val) {
+    localStorage.setItem('anthropicApiKey', val);
+    showToast('API key saved');
+  } else {
+    localStorage.removeItem('anthropicApiKey');
+    showToast('API key cleared');
+  }
+  renderProgramView();
+}
+
+function exportTrainingData() {
+  const week = getWeek(), bi = blockIdx(week);
+  const exportObj = {
+    exportedAt: new Date().toISOString(),
+    currentWeek: week,
+    currentBlock: BLOCKS[bi].label,
+    sessions: sessions,
+    feedbackLog: feedbackLog,
+    existingSuggestions: suggestions
+  };
+  const blob = new Blob([JSON.stringify(exportObj, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `workout-data-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showToast('Data exported');
+}
+
+function copyAnalysisPrompt() {
+  const prompt = `Attached is my workout tracking data (sessions, feedback, current week/block) from my training app.
+
+You are a strength coach for someone doing a 2-day full body program with a glute focus. Please analyze the data and respond ONLY as raw JSON (no markdown, no preamble), in this exact format:
+{"Exercise Name": "one-sentence next-session target", "Exercise Name 2": "..."}
+
+Instructions for the suggestions:
+- For each exercise that appears in my most recent session, give ONE specific next-session target (1 sentence max)
+- If I mentioned pain/discomfort with an exercise in feedback: suggest a regression or form adjustment
+- If feedback said an exercise was too easy: suggest a bigger weight jump than standard
+- If feedback mentioned wanting to swap an exercise: suggest the closest alternative
+- Standard progression: all reps hit cleanly → add weight (2.5kg lower body, 1-2kg upper); missed reps → same weight, aim for more reps
+- For failure sets: aim for 1-2 more reps
+- Be encouraging and specific
+- Only return the JSON object, nothing else`;
+  navigator.clipboard.writeText(prompt).then(()=>showToast('Prompt copied — paste into Claude.ai with your exported file'));
+}
+
+function importSuggestions() {
+  const raw = document.getElementById('import-sug-input').value.trim();
+  if (!raw) { showToast('Paste Claude\'s JSON response first'); return; }
+  try {
+    const cleaned = raw.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(cleaned);
+    Object.assign(suggestions, parsed);
+    saveSug();
+    document.getElementById('import-sug-input').value = '';
+    showToast(`Imported ${Object.keys(parsed).length} suggestion(s)`);
+  } catch(e) {
+    showToast('Couldn\'t parse that — make sure it\'s valid JSON');
+  }
+}
+
+function renderProgramView() {
+  const week = getWeek(), bi = blockIdx(week);
+  let html = `<div class="prog-progress-card" style="margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:0.78rem;color:var(--muted)">AI Coach (manual, no cost)</span>
+    </div>
+    <div style="font-size:0.68rem;color:var(--muted);margin-bottom:10px">Export your data, paste it + the prompt into Claude.ai, then paste the response back in to get next-session targets.</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <button onclick="exportTrainingData()" style="flex:1;padding:8px;border-radius:8px;border:none;background:var(--accent);color:#000;font-weight:600;font-size:0.72rem;cursor:pointer">⬇ Export Data</button>
+      <button onclick="copyAnalysisPrompt()" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--accent);background:transparent;color:var(--accent);font-weight:600;font-size:0.72rem;cursor:pointer">📋 Copy Prompt</button>
+    </div>
+    <textarea id="import-sug-input" placeholder="Paste Claude's JSON response here..."
+      style="width:100%;box-sizing:border-box;min-height:70px;padding:8px 10px;border-radius:8px;border:1px solid var(--border,#333);background:var(--card,#1a1a1a);color:var(--text,#fff);font-size:0.72rem;margin-bottom:8px;font-family:monospace;resize:vertical"></textarea>
+    <button onclick="importSuggestions()" style="width:100%;padding:8px;border-radius:8px;border:none;background:var(--accent);color:#000;font-weight:600;font-size:0.72rem;cursor:pointer">Import Suggestions</button>
+  </div>
+  <div class="prog-progress-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <span style="font-size:0.78rem;color:var(--muted)">Overall Progress</span>
+      <span style="font-size:0.78rem;color:var(--accent);font-weight:600">Week ${week} of 16</span>
+    </div>
+    <div class="prog-bar-track"><div class="prog-bar-fill" style="width:${(week/16)*100}%"></div></div>
+    <div style="font-size:0.68rem;color:var(--muted);margin-top:6px">${BLOCKS[bi].label} · ${4-((week-1)%4)} week${4-((week-1)%4)!==1?'s':''} left in block</div>
+  </div>`;
+
+  BLOCKS.forEach((block, i) => {
+    const isCurr = i === bi;
+    html += `<div class="block-card">
+      <div class="block-card-label${isCurr?' curr':''}">${block.label}${isCurr?' ← Current':''}</div>
+      <div class="block-card-weeks${isCurr?' curr':''}">${block.weeks}</div>
+      <div class="block-days">
+        ${['A','B'].map(d=>`<div class="block-day${isCurr?' curr':''}">
+          <div class="block-day-label">Day ${d}</div>
+          ${block[d].map(ex=>`<div class="block-ex-row">${ex.name} <span class="block-ex-sets">${ex.sets}×${ex.toFailure?'fail':ex.reps+(ex.perSide?'/s':'')}</span></div>`).join('')}
+        </div>`).join('')}
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('prog-overview').innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2600);
+}
+</script>
+</body>
+</html>

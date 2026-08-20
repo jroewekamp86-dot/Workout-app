@@ -48,8 +48,8 @@
   .week-dot.current { background: var(--warn); border-color: var(--warn); color: #000; }
 
   /* ── WORKOUT SELECTOR ── */
-  .day-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-  .day-btn { padding: 13px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--muted); font-family: var(--font-display); font-size: 1.2rem; letter-spacing: 0.07em; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .day-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .day-btn { padding: 11px 6px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--muted); font-family: var(--font-display); font-size: 0.95rem; letter-spacing: 0.06em; cursor: pointer; transition: all 0.2s; text-align: center; }
   .day-btn small { display: block; font-family: var(--font-body); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; opacity: 0.6; }
   .day-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
 
@@ -114,9 +114,6 @@
   .sheet-cat { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--accent); margin-bottom: 14px; }
   .gif-container { background: var(--surface2); border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; min-height: 160px; display: flex; align-items: center; justify-content: center; position: relative; }
   .gif-container img { width: 100%; display: block; border-radius: var(--radius); }
-  .illustration-frame { width: 100%; background: #fff; border-radius: var(--radius); overflow: hidden; display: flex; align-items: center; justify-content: center; }
-  .illustration-frame img { width: 100%; display: block; }
-  .illustration-link { display: block; text-align: center; font-size: 0.68rem; color: var(--accent); padding: 8px 0 0; text-decoration: none; }
   .gif-loading { color: var(--muted); font-size: 0.8rem; text-align: center; padding: 20px; }
   .gif-fallback { color: var(--muted); font-size: 0.8rem; text-align: center; padding: 30px 20px; }
   .gif-fallback .gif-emoji { font-size: 2.5rem; display: block; margin-bottom: 8px; }
@@ -215,8 +212,9 @@
     <div class="week-track" id="week-track"></div>
   </div>
   <div class="day-selector">
-    <button class="day-btn active" id="btn-a" onclick="selectDay('A')">WORKOUT A<small>Saturday</small></button>
-    <button class="day-btn" id="btn-b" onclick="selectDay('B')">WORKOUT B<small>Wednesday</small></button>
+    <button class="day-btn active" id="btn-1" onclick="selectDay(1)">DAY 1<small>Glute & Back</small></button>
+    <button class="day-btn" id="btn-2" onclick="selectDay(2)">DAY 2<small>Posterior & Push</small></button>
+    <button class="day-btn" id="btn-3" onclick="selectDay(3)">DAY 3<small>Glute & Shoulder</small></button>
   </div>
   <div class="date-row">
     <label>Date</label>
@@ -459,111 +457,93 @@ const EX_INFO = {
     tips: ["Hold dumbbells at sides or on shoulders", "Sit back to box, feet wider than hip width", "Touch and pause briefly — don't relax", "Drive knees out as you stand", "Useful for learning to sit back and load the posterior chain"]
   },
   "Single Arm Row (Machine)": {
-    gif: "machine+single+arm+row+exercise",
     tips: ["Set the machine for one arm at a time if possible", "Sit or stand stable — minimise rotation", "Pull elbow back and slightly down toward hip", "Full range: let the shoulder blade slide forward at start", "Keep the movement slow and deliberate"]
+  },
+  "Barbell Hip Thrust": {
+    tips: ["Upper back rests on bench, bar or pad sits at hip crease", "Feet flat, hip-width apart, knees bent ~90° at top", "Drive through heels — not toes — to thrust hips up", "Squeeze glutes HARD at the top, chin tucked", "Don't hyperextend the lower back — ribs stay down"]
+  },
+  "DB Bulgarian Split Squat": {
+    tips: ["Rear foot elevated on bench, front foot far enough forward", "Lower straight down — front knee tracks over toes", "Most weight on the front foot — rear leg stabilises only", "Keep torso upright — slight forward lean is OK", "Drive through front heel to stand, squeeze front glute"]
+  },
+  "Seated Cable Row": {
+    tips: ["Sit tall with a slight natural lean back", "Pull handle to navel — keep elbows close to body", "Squeeze shoulder blades together at the end", "Full extension forward before each rep — shoulders protract", "Don't use lower back momentum to row"]
+  },
+  "Barbell RDL": {
+    tips: ["Start standing with bar at hips", "Push hips back — bar slides down thighs", "Soft knee bend throughout — not a squat", "Feel hamstrings load — go to mid-shin or until back wants to round", "Drive hips through to stand — glutes lead the movement"]
+  },
+  "DB Chest Press": {
+    tips: ["Lie flat, dumbbells at chest level, elbows at ~45°", "Press up and slightly together — don't flare elbows wide", "Control the descent — 2 seconds down", "Keep shoulder blades retracted and feet flat on floor", "Full range: lower until upper arms are parallel to floor"]
+  },
+  "DB Shoulder Press": {
+    tips: ["Start with dumbbells at shoulder height, palms forward", "Press directly overhead — slight forward arc is fine", "Brace your core — don't arch your lower back", "Fully extend without shrugging at the top", "Control the descent — 2 seconds back to start"]
+  },
+  "Hip Abduction Machine": {
+    tips: ["Sit tall with back against pad", "Push knees outward against the pads in a controlled motion", "Squeeze glutes and outer hips at the top of the movement", "Resist the weight slowly on the way back in — 2-3 seconds", "Avoid using momentum — keep the movement deliberate"]
+  },
+  "Cable Glute Kickback": {
+    tips: ["Attach ankle cuff, face the cable stack", "Hinge slightly forward holding the machine for balance", "Kick the working leg straight back and up — squeeze glute at top", "Don't rotate the hips — keep them square to the machine", "Lower with control — don't let the cable pull you forward"]
+  },
+  "Single-Leg Hip Thrust": {
+    tips: ["Upper back on bench, one foot flat on floor, one leg extended or raised", "Drive through the heel of the planted foot to thrust up", "Squeeze the working glute hard at the top — hold for 1 second", "Keep hips level — don't let the non-working side drop", "Control the descent — slow negatives build more glute"]
+  },
+  "DB Walking Lunge": {
+    tips: ["Step forward and lower back knee toward floor — keep front shin vertical", "Drive through front heel to bring back foot forward for next step", "Keep torso upright — don't lean forward into the lunge", "Take a long enough step so front knee doesn't track over toes", "Squeeze the front glute as you push through to the next step"]
+  },
+  "Cable Pull-Through": {
+    tips: ["Set cable low, stand facing away from the stack", "Hinge at hips — push them back as hands swing through legs", "Keep back flat throughout — this is a hip hinge, not a squat", "Drive hips forward to stand, squeezing glutes hard at the top", "Let the cable pull your hands back through — feel the hamstring stretch"]
   }
 };
 
 // ══════════════════════════════════════════════════════════════
-// WORKOUT BLOCKS
+// 3-DAY SPLIT
 // ══════════════════════════════════════════════════════════════
-const BLOCKS = [
+const WORKOUTS = [
   {
-    label: "Block 1: Foundation", weeks: "Weeks 1–4",
-    A: [
-      { name:"Goblet Squat", cat:"Squat", sets:3, reps:6 },
-      { name:"Dumbbell Bench Press", cat:"Push", sets:3, reps:6 },
-      { name:"Reverse Lunge", cat:"Single Leg", sets:3, reps:6, perSide:true },
-      { name:"Lat Pulldown", cat:"Pull", sets:3, reps:6 },
-      { name:"Romanian Deadlift (DB)", cat:"Bend", sets:3, reps:10 },
-      { name:"Dumbbell Curls", cat:"Arms", sets:3, toFailure:true },
-      { name:"Deadbugs", cat:"Core", sets:3, toFailure:true }
-    ],
-    B: [
-      { name:"Hip Thrusts", cat:"Bend", sets:3, reps:6 },
-      { name:"Single Arm DB Row", cat:"Pull", sets:3, reps:6 },
-      { name:"Leg Press", cat:"Squat", sets:3, reps:6 },
-      { name:"Overhead Press (DB)", cat:"Push", sets:3, reps:6 },
-      { name:"Split Squat", cat:"Single Leg", sets:3, reps:10, perSide:true },
-      { name:"Tricep Extensions (DB)", cat:"Arms", sets:3, toFailure:true },
-      { name:"Knee Raises", cat:"Core", sets:3, toFailure:true }
+    label: "Day 1", focus: "Glute & Back",
+    exercises: [
+      { name:"Barbell Hip Thrust",       cat:"Glute",      sets:4, reps:"8-10" },
+      { name:"Lat Pulldown",             cat:"Pull",       sets:3, reps:"10-12" },
+      { name:"DB Bulgarian Split Squat", cat:"Single Leg", sets:3, reps:"10-12", perSide:true },
+      { name:"Seated Cable Row",         cat:"Pull",       sets:3, reps:"10-12" },
+      { name:"Hip Abduction Machine",    cat:"Glute",      sets:3, reps:"15" },
     ]
   },
   {
-    label: "Block 2: Build", weeks: "Weeks 5–8",
-    A: [
-      { name:"Back Squat", cat:"Squat", sets:3, reps:6 },
-      { name:"Bench Press (BB)", cat:"Push", sets:3, reps:6 },
-      { name:"Staggered Stance RDL (DB)", cat:"Single Leg", sets:3, reps:8, perSide:true },
-      { name:"Row (Barbell)", cat:"Pull", sets:3, reps:6 },
-      { name:"Deadlift (Bar)", cat:"Bend", sets:3, reps:6 },
-      { name:"Cable Curls", cat:"Arms", sets:3, toFailure:true },
-      { name:"Sit Ups", cat:"Core", sets:3, toFailure:true }
-    ],
-    B: [
-      { name:"Romanian Deadlift (Bar)", cat:"Bend", sets:3, reps:8 },
-      { name:"Row (Cable)", cat:"Pull", sets:3, reps:8 },
-      { name:"Box Squat (BB)", cat:"Squat", sets:3, reps:6 },
-      { name:"Overhead Press (BB)", cat:"Push", sets:3, reps:6 },
-      { name:"Step Ups", cat:"Single Leg", sets:3, reps:10, perSide:true },
-      { name:"Tricep Extensions (Cable)", cat:"Arms", sets:3, toFailure:true },
-      { name:"Crunch", cat:"Core", sets:3, toFailure:true }
+    label: "Day 2", focus: "Posterior Chain & Chest",
+    exercises: [
+      { name:"Barbell RDL",             cat:"Bend",       sets:4, reps:"8-10" },
+      { name:"DB Chest Press",          cat:"Push",       sets:3, reps:"10-12" },
+      { name:"Leg Press",               cat:"Squat",      sets:3, reps:"10-12" },
+      { name:"Single Arm DB Row",       cat:"Pull",       sets:3, reps:"10-12", perSide:true },
+      { name:"Cable Glute Kickback",    cat:"Glute",      sets:3, reps:"12-15", perSide:true },
     ]
   },
   {
-    label: "Block 3: Strength", weeks: "Weeks 9–12",
-    A: [
-      { name:"Back Squat", cat:"Squat", sets:4, reps:5 },
-      { name:"Bench Press (DB)", cat:"Push", sets:4, reps:5 },
-      { name:"Forward Lunge", cat:"Single Leg", sets:3, reps:8, perSide:true },
-      { name:"Lat Pulldown", cat:"Pull", sets:4, reps:6 },
-      { name:"Deadlift (KB)", cat:"Bend", sets:4, reps:6 },
-      { name:"Cable Curls", cat:"Arms", sets:3, toFailure:true },
-      { name:"Carries", cat:"Core", sets:3, toFailure:true }
-    ],
-    B: [
-      { name:"Hip Thrusts", cat:"Bend", sets:4, reps:6 },
-      { name:"Single Arm Row (Cable)", cat:"Pull", sets:4, reps:6 },
-      { name:"Leg Press", cat:"Squat", sets:4, reps:8 },
-      { name:"Overhead Press (Machine)", cat:"Push", sets:4, reps:6 },
-      { name:"Staggered Stance RDL (Cable)", cat:"Single Leg", sets:3, reps:8, perSide:true },
-      { name:"Tricep Extensions (BB)", cat:"Arms", sets:3, toFailure:true },
-      { name:"Deadbugs", cat:"Core", sets:3, toFailure:true }
-    ]
-  },
-  {
-    label: "Block 4: Power & Variety", weeks: "Weeks 13–16",
-    A: [
-      { name:"Box Squat (DB)", cat:"Squat", sets:4, reps:5 },
-      { name:"Bench Press (Machine)", cat:"Push", sets:3, reps:8 },
-      { name:"Step Ups", cat:"Single Leg", sets:3, reps:10, perSide:true },
-      { name:"Row (Machine)", cat:"Pull", sets:4, reps:6 },
-      { name:"Romanian Deadlift (DB)", cat:"Bend", sets:4, reps:8 },
-      { name:"Cable Curls", cat:"Arms", sets:3, toFailure:true },
-      { name:"Knee Raises", cat:"Core", sets:3, toFailure:true }
-    ],
-    B: [
-      { name:"Hip Thrusts", cat:"Bend", sets:4, reps:8 },
-      { name:"Single Arm Row (Machine)", cat:"Pull", sets:3, reps:8 },
-      { name:"Goblet Squat", cat:"Squat", sets:3, reps:10 },
-      { name:"Overhead Press (DB)", cat:"Push", sets:3, reps:8 },
-      { name:"Staggered Stance RDL (DB)", cat:"Single Leg", sets:4, reps:8, perSide:true },
-      { name:"Tricep Extensions (DB)", cat:"Arms", sets:3, toFailure:true },
-      { name:"Sit Ups", cat:"Core", sets:3, toFailure:true }
+    label: "Day 3", focus: "Glute & Shoulder",
+    exercises: [
+      { name:"Single-Leg Hip Thrust",   cat:"Glute",      sets:3, reps:"10-12", perSide:true },
+      { name:"DB Shoulder Press",       cat:"Push",       sets:3, reps:"10-12" },
+      { name:"DB Walking Lunge",        cat:"Single Leg", sets:3, reps:"10",    perSide:true },
+      { name:"Lat Pulldown",            cat:"Pull",       sets:3, reps:"10-12" },
+      { name:"Cable Pull-Through",      cat:"Bend",       sets:3, reps:"12" },
     ]
   }
 ];
 
 function getAllExercises() {
   const seen = new Set(), all = [];
-  BLOCKS.forEach(b => [...b.A,...b.B].forEach(e => { if(!seen.has(e.name)){seen.add(e.name);all.push(e);}}));
+  WORKOUTS.forEach(w => w.exercises.forEach(e => {
+    if (!seen.has(e.name)) { seen.add(e.name); all.push(e); }
+  }));
   return all;
 }
+
+function currentWorkout() { return WORKOUTS[currentDay - 1]; }
 
 // ══════════════════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════════════════
-let currentDay = 'A';
+let currentDay = 1;
 let selectedEx = null;
 let progFilter = 'All';
 let feedbackData = {};
@@ -574,41 +554,50 @@ let pendingSessionData = null;
 let sessions = JSON.parse(localStorage.getItem('ll_sessions') || '[]');
 let suggestions = JSON.parse(localStorage.getItem('ll_suggestions') || '{}');
 let feedbackLog = JSON.parse(localStorage.getItem('ll_feedback') || '[]');
-let programStart = localStorage.getItem('ll_start') || null;
 
 const save = () => localStorage.setItem('ll_sessions', JSON.stringify(sessions));
 const saveSug = () => localStorage.setItem('ll_suggestions', JSON.stringify(suggestions));
 const saveFb = () => localStorage.setItem('ll_feedback', JSON.stringify(feedbackLog));
 
 // ══════════════════════════════════════════════════════════════
-// WEEK / BLOCK HELPERS
+// SESSION-BASED PROGRESSION HELPERS
 // ══════════════════════════════════════════════════════════════
-function getWeek() {
-  if (!programStart) return 1;
-  const diff = Math.floor((new Date() - new Date(programStart)) / 86400000);
-  return Math.min(Math.floor(diff / 7) + 1, 16);
+function getTotalWorkouts() {
+  const seen = new Set();
+  sessions.forEach(s => seen.add(`${s.date}-${s.day}`));
+  return seen.size;
 }
-function blockIdx(week) { return Math.min(Math.floor((week-1)/4), 3); }
-function currentBlock() { return BLOCKS[blockIdx(getWeek())]; }
+function getCurrentCycle() { return Math.max(1, Math.ceil((getTotalWorkouts() + 1) / 3)); }
+function getNextDay() {
+  if (!sessions.length) return 1;
+  const last = sessions[sessions.length - 1];
+  return (last.day % 3) + 1; // 1→2, 2→3, 3→1
+}
 
 // ══════════════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════════════
 document.getElementById('session-date').value = new Date().toISOString().split('T')[0];
-renderHeader(); renderWeekTrack(); renderExercises();
+currentDay = getNextDay();
+renderHeader(); renderCycleTrack(); renderExercises();
+document.querySelectorAll('.day-btn').forEach((b,i) => b.classList.toggle('active', i+1 === currentDay));
 
 function renderHeader() {
-  const w = getWeek(), bi = blockIdx(w);
-  document.getElementById('week-pill').textContent = `Week ${w} · Block ${bi+1}`;
-  document.getElementById('block-label').textContent = BLOCKS[bi].label + ' · ' + BLOCKS[bi].weeks;
+  const cycle = getCurrentCycle();
+  const workout = WORKOUTS[currentDay - 1];
+  document.getElementById('week-pill').textContent = `Cycle ${cycle} · Day ${currentDay}`;
+  document.getElementById('block-label').textContent = `${workout.label} · ${workout.focus}`;
 }
 
-function renderWeekTrack() {
-  const w = getWeek(), el = document.getElementById('week-track');
+function renderCycleTrack() {
+  const total = getTotalWorkouts();
+  const cycle = Math.max(1, Math.ceil(total / 3));
+  const doneInCycle = total - (cycle - 1) * 3;
+  const el = document.getElementById('week-track');
   el.innerHTML = '';
-  for(let i=1;i<=16;i++){
+  for (let i = 1; i <= 3; i++) {
     const d = document.createElement('div');
-    d.className = 'week-dot' + (i===w?' current':i<w?' done':'');
+    d.className = 'week-dot' + (i === currentDay ? ' current' : i <= doneInCycle ? ' done' : '');
     d.textContent = i;
     el.appendChild(d);
   }
@@ -624,9 +613,10 @@ function switchTab(tab) {
 
 function selectDay(d) {
   currentDay = d;
-  document.getElementById('btn-a').classList.toggle('active', d==='A');
-  document.getElementById('btn-b').classList.toggle('active', d==='B');
+  document.querySelectorAll('.day-btn').forEach((b,i) => b.classList.toggle('active', i+1===d));
   document.getElementById('ai-container').innerHTML = '';
+  renderHeader();
+  renderCycleTrack();
   renderExercises();
 }
 
@@ -636,15 +626,15 @@ function getLastSession(name) {
 }
 
 function renderExercises() {
-  const block = currentBlock();
-  const exercises = block[currentDay];
+  const workout = currentWorkout();
+  const exercises = workout.exercises;
   const container = document.getElementById('ex-container');
   container.innerHTML = '';
 
   exercises.forEach((ex, idx) => {
     const last = getLastSession(ex.name);
     const sug = suggestions[ex.name] || null;
-    const repLabel = ex.toFailure ? 'to failure' : `${ex.reps} reps${ex.perSide?' /side':''}`;
+    const repLabel = `${ex.reps} reps${ex.perSide ? ' /side' : ''}`;
     const targetLabel = `${ex.sets} × ${repLabel}`;
 
     let lastHtml = '';
@@ -690,16 +680,9 @@ function toggleTick(ei, si) {
 // ══════════════════════════════════════════════════════════════
 function saveSession() {
   const date = document.getElementById('session-date').value;
-  const block = currentBlock();
-  const exercises = block[currentDay];
+  const exercises = currentWorkout().exercises;
   const sessionData = [];
   let saved = 0;
-
-  if(!programStart) {
-    programStart = date;
-    localStorage.setItem('ll_start', programStart);
-    renderHeader(); renderWeekTrack();
-  }
 
   exercises.forEach((ex, idx) => {
     const sets = [];
@@ -711,8 +694,7 @@ function saveSession() {
       sets.push({weight:w, reps:r});
     }
     if(hasData) {
-      const w = getWeek(), bi = blockIdx(w);
-      sessions.push({exercise:ex.name, day:currentDay, date, sets, week:w, block:bi+1});
+      sessions.push({exercise:ex.name, day:currentDay, date, sets, cycle:getCurrentCycle()});
       sessionData.push({...ex, sets});
       saved++;
     }
@@ -727,53 +709,24 @@ function saveSession() {
 }
 
 // ══════════════════════════════════════════════════════════════
-// EXERCISE INFO SHEET
+// EXERCISE INFO SHEET — Simply Fitness illustrated guides
 // ══════════════════════════════════════════════════════════════
-// ── Curated professional illustration guides (Simply Fitness exercise library) ──
-// Static, single-frame illustrations — clear, consistent, no embedding restrictions.
-// Verified exact filenames where confirmed; best-effort prediction elsewhere (onerror falls back gracefully).
 const SF_BASE = 'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/';
 const EX_GUIDE = {
-  "Goblet Squat":                  { slug:"dumbbell-goblet-squat",            img:"Dumbbell-Goblet-Squat" },
-  "Hip Thrusts":                   { slug:"barbell-hip-thrust",               img:"Barbell-Hip-Thrust" },
-  "Romanian Deadlift (DB)":        { slug:"dumbbell-stiff-leg-deadlift",      img:"Dumbbell-Romanian-Deadlift_35135213-e0df-4ef2-b093-22ed8d04dc41" },
-  "Romanian Deadlift (Bar)":       { slug:"barbell-stiff-leg-deadlift",       img:"Barbell-Romanian-Deadlift_34ede1b4-63ac-451d-9536-bbf9942b560c" },
-  "Lat Pulldown":                  { slug:"wide-grip-pulldown",               img:"Wide-Grip-Pulldown" },
-  "Back Squat":                    { slug:"squat",                            img:"Squat_d752e42d-02ba-4692-b300-c6e67ad5a4f5" },
-  "Box Squat (BB)":                { slug:"squat",                            img:"Squat_d752e42d-02ba-4692-b300-c6e67ad5a4f5" },
-  "Box Squat (DB)":                { slug:"dumbbell-goblet-squat",            img:"Dumbbell-Goblet-Squat" },
-  "Bench Press (BB)":              { slug:"barbell-bench-press",              img:"Barbell-Bench-Press" },
-  "Dumbbell Bench Press":          { slug:"dumbbell-bench-press",             img:"Dumbbell-Bench-Press" },
-  "Bench Press (DB)":              { slug:"dumbbell-bench-press",             img:"Dumbbell-Bench-Press" },
-  "Bench Press (Machine)":         { slug:"chest-press-machine",              img:"Chest-Press-Machine" },
-  "Overhead Press (DB)":           { slug:"dumbbell-shoulder-press",          img:"Dumbbell-Shoulder-Press" },
-  "Overhead Press (BB)":           { slug:"standing-barbell-shoulder-press",  img:"Standing-Barbell-Shoulder-Press" },
-  "Overhead Press (Machine)":      { slug:"smith-machine-shoulder-press",     img:"Smith-Machine-Shoulder-Press" },
-  "Deadlift (Bar)":                { slug:"barbell-deadlift",                 img:"Barbell-Deadlift" },
-  "Deadlift (KB)":                 { slug:"kettlebell-sumo-deadlift",         img:"Kettlebell-Sumo-Deadlift" },
-  "Split Squat":                   { slug:"bodyweight-bulgarian-split-squat", img:"Bodyweight-Bulgarian-Split-Squat" },
-  "Leg Press":                     { slug:"leg-press",                        img:"Leg-Press" },
-  "Row (Barbell)":                 { slug:"barbell-row",                      img:"Barbell-Row" },
-  "Row (Cable)":                   { slug:"seated-cable-row",                 img:"Seated-Cable-Row" },
-  "Row (Machine)":                 { slug:"seated-cable-row",                 img:"Seated-Cable-Row" },
-  "Single Arm DB Row":             { slug:"dumbbell-bent-over-row-single-arm",img:"Dumbbell-Bent-Over-Row-Single-Arm" },
-  "Single Arm Row (Cable)":        { slug:"dumbbell-bent-over-row-single-arm",img:"Dumbbell-Bent-Over-Row-Single-Arm" },
-  "Single Arm Row (Machine)":      { slug:"dumbbell-bent-over-row-single-arm",img:"Dumbbell-Bent-Over-Row-Single-Arm" },
-  "Dumbbell Curls":                { slug:"alternating-dumbbell-curl",        img:"Alternating-Dumbbell-Curl" },
-  "Cable Curls":                   { slug:"rope-cable-curl",                  img:"Rope-Cable-Curl" },
-  "Barbell Curls":                 { slug:"barbell-curl",                     img:"Barbell-Curl" },
-  "Tricep Extensions (DB)":        { slug:"dumbbell-overhead-triceps-extension", img:"Dumbbell-Overhead-Triceps-Extension" },
-  "Tricep Extensions (Cable)":     { slug:"triceps-pressdown",                img:"Triceps-Pressdown" },
-  "Tricep Extensions (BB)":        { slug:"seated-barbell-french-press",      img:"Seated-Barbell-French-Press" },
-  "Step Ups":                      { slug:"dumbbell-step-up",                 img:"Dumbbell-Step-Up" },
-  "Crunch":                        { slug:"crunch",                           img:"Crunch" },
-  "Sit Ups":                       { slug:"crunch",                           img:"Crunch" },
-  "Reverse Lunge":                 { slug:"lunge",                            img:"Lunge" },
-  "Forward Lunge":                 { slug:"lunge",                            img:"Lunge" },
-  "Knee Raises":                   { slug:"standing-knee-raise",              img:"Standing-Knee-Raise" },
-  "Deadbugs":                      { slug:"bird-dog",                         img:"Bird-Dog" },
-  "Staggered Stance RDL (DB)":     { slug:"dumbbell-stiff-leg-deadlift",      img:"Dumbbell-Romanian-Deadlift_35135213-e0df-4ef2-b093-22ed8d04dc41" },
-  "Staggered Stance RDL (Cable)":  { slug:"barbell-stiff-leg-deadlift",       img:"Barbell-Romanian-Deadlift_34ede1b4-63ac-451d-9536-bbf9942b560c" },
+  "Barbell Hip Thrust":       { slug:"barbell-hip-thrust",               img:"Barbell-Hip-Thrust" },
+  "Lat Pulldown":             { slug:"wide-grip-pulldown",               img:"Wide-Grip-Pulldown" },
+  "DB Bulgarian Split Squat": { slug:"bodyweight-bulgarian-split-squat", img:"Bodyweight-Bulgarian-Split-Squat" },
+  "Seated Cable Row":         { slug:"seated-cable-row",                 img:"Seated-Cable-Row" },
+  "Hip Abduction Machine":    { slug:"seated-hip-abduction-machine",     img:"Seated-Hip-Abduction-Machine" },
+  "Barbell RDL":              { slug:"barbell-stiff-leg-deadlift",       img:"Barbell-Romanian-Deadlift_34ede1b4-63ac-451d-9536-bbf9942b560c" },
+  "DB Chest Press":           { slug:"dumbbell-bench-press",             img:"Dumbbell-Bench-Press" },
+  "Leg Press":                { slug:"leg-press",                        img:"Leg-Press" },
+  "Single Arm DB Row":        { slug:"dumbbell-bent-over-row-single-arm",img:"Dumbbell-Bent-Over-Row-Single-Arm" },
+  "Cable Glute Kickback":     { slug:"standing-cable-kickback",          img:"Standing-Cable-Kickback" },
+  "Single-Leg Hip Thrust":    { slug:"single-leg-glute-bridge",          img:"Single-Leg-Glute-Bridge" },
+  "DB Shoulder Press":        { slug:"dumbbell-shoulder-press",          img:"Dumbbell-Shoulder-Press" },
+  "DB Walking Lunge":         { slug:"lunge",                            img:"Lunge" },
+  "Cable Pull-Through":       { slug:"good-morning",                     img:"Good-Morning" },
 };
 
 function openSheet(name, cat) {
@@ -787,7 +740,7 @@ function openSheet(name, cat) {
     `<div class="tip-item"><div class="tip-num">${i+1}</div><div class="tip-text">${t}</div></div>`
   ).join('');
 
-  // Curated professional illustration guide
+  // Simply Fitness professional illustration
   const gifEl = document.getElementById('gif-container');
   const guide = EX_GUIDE[name];
 
@@ -796,13 +749,13 @@ function openSheet(name, cat) {
     const guideUrl = `https://www.simplyfitness.com/pages/${guide.slug}`;
     gifEl.innerHTML = `
       <div>
-        <div class="illustration-frame">
-          <img src="${imgUrl}" alt="${name} form illustration" onerror="this.closest('.illustration-frame').parentElement.innerHTML='<div class=gif-fallback><span class=gif-emoji>🏋️</span><span>${name}</span><br><small style=opacity:0.4;margin-top:6px;display:block>Search &quot;${name}&quot; on YouTube for a demo</small></div>'">
+        <div style="background:#fff;border-radius:var(--radius);overflow:hidden;display:flex;align-items:center;justify-content:center;">
+          <img src="${imgUrl}" alt="${name} form illustration" style="width:100%;display:block;" onerror="this.closest('div').parentElement.innerHTML='<div class=gif-fallback><span class=gif-emoji>🏋️</span><span>${name.replace(/'/g,"&#39;")}</span></div>'">
         </div>
-        <a class="illustration-link" href="${guideUrl}" target="_blank" rel="noopener">View full guide ↗</a>
+        <a href="${guideUrl}" target="_blank" rel="noopener" style="display:block;text-align:center;font-size:0.68rem;color:var(--accent);padding:8px 0 0;text-decoration:none;">View full guide ↗</a>
       </div>`;
   } else {
-    gifEl.innerHTML = `<div class="gif-fallback"><span class="gif-emoji">🏋️</span><span>${name}</span><br><small style="opacity:0.4;margin-top:6px;display:block">Search "${name}" on YouTube for a demo</small></div>`;
+    gifEl.innerHTML = `<div class="gif-fallback"><span class="gif-emoji">🏋️</span><span>${name}</span></div>`;
   }
 
   document.getElementById('sheet-overlay').classList.add('open');
@@ -831,12 +784,6 @@ function openFeedback() {
   document.body.style.overflow = 'hidden';
 }
 
-function closeFeedback() {
-  document.getElementById('feedback-overlay').classList.remove('open');
-  document.body.style.overflow = '';
-  if(pendingSessionData) getAISuggestions(pendingSessionData, true);
-}
-
 function setStar(n) { starRating = n; renderStars(n); }
 function renderStars(n) {
   document.querySelectorAll('.star-btn').forEach((b,i)=>{
@@ -858,14 +805,25 @@ async function submitFeedback() {
     difficulty: starRating,
     feel: feelSelections,
     notes,
-    week: getWeek(),
+    cycle: getCurrentCycle(),
     day: currentDay
   };
   feedbackLog.push(fb);
   saveFb();
+  const sessionData = pendingSessionData;
+  pendingSessionData = null;
   closeFeedback();
-  showToast('Feedback sent to AI coach!');
-  if(pendingSessionData) await getAISuggestions(pendingSessionData, false, fb);
+  showToast('Feedback saved!');
+  if(sessionData) await getAISuggestions(sessionData, false, fb);
+}
+
+function closeFeedback() {
+  document.getElementById('feedback-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  // Auto-advance to next day after session is logged
+  const next = getNextDay();
+  selectDay(next);
+  if(pendingSessionData) getAISuggestions(pendingSessionData, true);
   pendingSessionData = null;
 }
 
@@ -879,9 +837,9 @@ async function getAISuggestions(sessionData, skipFeedback=false, fb=null) {
     <div class="ai-panel-body"><div class="ai-loading"><div class="spinner"></div> Analysing...</div></div>
   </div>`;
 
-  const week = getWeek();
-  const bi = blockIdx(week);
-  const block = BLOCKS[bi];
+  const cycle = getCurrentCycle();
+  const total = getTotalWorkouts();
+  const workout = WORKOUTS[currentDay - 1];
 
   const histCtx = sessionData.map(ex => {
     const all = sessions.filter(s=>s.exercise===ex.name).slice(-4);
@@ -895,18 +853,14 @@ async function getAISuggestions(sessionData, skipFeedback=false, fb=null) {
   }).join('\n');
 
   const recentFb = feedbackLog.slice(-3).map(f=>
-    `Week ${f.week} Day ${f.day}: Difficulty ${f.difficulty}/5, Felt: ${f.feel.join(',')||'not specified'}, Notes: "${f.notes||'none'}"`
+    `Cycle ${f.cycle||'?'} Day ${f.day}: Difficulty ${f.difficulty}/5, Felt: ${f.feel.join(',')||'not specified'}, Notes: "${f.notes||'none'}"`
   ).join('\n');
 
   const fbSection = fb
     ? `\nToday's feedback: Difficulty ${fb.difficulty}/5, Felt: ${fb.feel.join(',')||'not specified'}, Notes: "${fb.notes||'none'}"`
     : skipFeedback ? '\nNo feedback provided this session.' : '';
 
-  const nextWeek = week + 1;
-  const blockChange = nextWeek <= 16 && blockIdx(nextWeek) !== bi;
-  const blockNote = blockChange ? `\nNOTE: Next week starts ${BLOCKS[blockIdx(nextWeek)].label} — new exercises begin. Mention this.` : '';
-
-  const prompt = `You are a strength coach for someone doing a 2-day full body program with a glute focus. Week ${week} of 16, ${block.label}.${blockNote}
+  const prompt = `You are a strength coach for a glute-focused 3-day training program. Session ${total} logged (Cycle ${cycle}, ${workout.label} — ${workout.focus}).
 
 Today's session:
 ${histCtx}
@@ -917,36 +871,20 @@ ${recentFb || 'No previous feedback'}
 
 Instructions:
 - For each exercise give ONE specific next-session target (1 sentence max)
-- If user mentioned pain/discomfort with an exercise: suggest a regression or form adjustment
-- If user said exercise was too easy: suggest bigger weight jump than standard
-- If user mentioned wanting to swap an exercise: suggest the closest alternative from the original program options
+- If user mentioned pain/discomfort: suggest a regression or form adjustment
+- If user said exercise was too easy: suggest a bigger weight jump than standard
 - Standard progression: all reps hit cleanly → add weight (2.5kg lower body, 1-2kg upper); missed reps → same weight, aim for more reps
-- For failure sets: aim for 1-2 more reps
+- Rep ranges: e.g. "8-10" — if top of range hit, increase weight next time
 - Be encouraging and specific
 
 Respond ONLY as raw JSON (no markdown): {"Exercise Name": "suggestion"}`;
 
-  const apiKey = getApiKey();
-  if (!apiKey) {
-    container.querySelector('.ai-panel-body').innerHTML = `<div class="ai-error">No API key set — add one in the Program tab to enable AI Coach. Your session is saved.</div>`;
-    return;
-  }
-
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "anthropic-dangerous-direct-browser-access": "true"
-      },
+      headers:{"Content-Type":"application/json"},
       body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:1000, messages:[{role:"user",content:prompt}]})
     });
-    if (!res.ok) {
-      const errBody = await res.json().catch(()=>({}));
-      throw new Error(errBody?.error?.message || `API error ${res.status}`);
-    }
     const data = await res.json();
     const raw = data.content.map(c=>c.text||'').join('');
     const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
@@ -962,7 +900,7 @@ Respond ONLY as raw JSON (no markdown): {"Exercise Name": "suggestion"}`;
       <div class="ai-panel-body">${items}</div>
     </div>`;
   } catch(e) {
-    container.querySelector('.ai-panel-body').innerHTML = `<div class="ai-error">Couldn't load suggestions: ${e.message || 'unknown error'} — your session is saved.</div>`;
+    container.querySelector('.ai-panel-body').innerHTML = `<div class="ai-error">Couldn't load suggestions — your session is saved.</div>`;
   }
 }
 
@@ -1052,84 +990,25 @@ function renderProgress() {
 // ══════════════════════════════════════════════════════════════
 // PROGRAM TAB
 // ══════════════════════════════════════════════════════════════
-function getApiKey() {
-  return localStorage.getItem('anthropicApiKey') || '';
-}
-
-function saveApiKey() {
-  const val = document.getElementById('api-key-input').value.trim();
-  if (val) {
-    localStorage.setItem('anthropicApiKey', val);
-    showToast('API key saved');
-  } else {
-    localStorage.removeItem('anthropicApiKey');
-    showToast('API key cleared');
-  }
-  renderProgramView();
-}
-
-function exportTrainingData() {
-  const week = getWeek(), bi = blockIdx(week);
-  const exportObj = {
-    exportedAt: new Date().toISOString(),
-    currentWeek: week,
-    currentBlock: BLOCKS[bi].label,
-    sessions: sessions,
-    feedbackLog: feedbackLog,
-    existingSuggestions: suggestions
-  };
-  const blob = new Blob([JSON.stringify(exportObj, null, 2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `workout-data-${new Date().toISOString().slice(0,10)}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-  showToast('Data exported');
-}
-
-function copyAnalysisPrompt() {
-  const prompt = `Attached is my workout tracking data (sessions, feedback, current week/block) from my training app.
-
-You are a strength coach for someone doing a 2-day full body program with a glute focus. Please analyze the data and respond ONLY as raw JSON (no markdown, no preamble), in this exact format:
-{"Exercise Name": "one-sentence next-session target", "Exercise Name 2": "..."}
-
-Instructions for the suggestions:
-- For each exercise that appears in my most recent session, give ONE specific next-session target (1 sentence max)
-- If I mentioned pain/discomfort with an exercise in feedback: suggest a regression or form adjustment
-- If feedback said an exercise was too easy: suggest a bigger weight jump than standard
-- If feedback mentioned wanting to swap an exercise: suggest the closest alternative
-- Standard progression: all reps hit cleanly → add weight (2.5kg lower body, 1-2kg upper); missed reps → same weight, aim for more reps
-- For failure sets: aim for 1-2 more reps
-- Be encouraging and specific
-- Only return the JSON object, nothing else`;
-  navigator.clipboard.writeText(prompt).then(()=>showToast('Prompt copied — paste into Claude.ai with your exported file'));
-}
-
-function importSuggestions() {
-  const raw = document.getElementById('import-sug-input').value.trim();
-  if (!raw) { showToast('Paste Claude\'s JSON response first'); return; }
-  try {
-    const cleaned = raw.replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(cleaned);
-    Object.assign(suggestions, parsed);
-    saveSug();
-    document.getElementById('import-sug-input').value = '';
-    showToast(`Imported ${Object.keys(parsed).length} suggestion(s)`);
-  } catch(e) {
-    showToast('Couldn\'t parse that — make sure it\'s valid JSON');
-  }
-}
-
 function renderProgramView() {
-  const week = getWeek(), bi = blockIdx(week);
-  let html = `<div class="prog-progress-card" style="margin-bottom:14px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <span style="font-size:0.78rem;color:var(--muted)">AI Coach (manual, no cost)</span>
+  const total = getTotalWorkouts();
+  const cycle = getCurrentCycle();
+
+  let html = `
+  <!-- Stats card -->
+  <div class="prog-progress-card" style="margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <span style="font-size:0.78rem;color:var(--muted)">Total Workouts Logged</span>
+      <span style="font-size:0.78rem;color:var(--accent);font-weight:600">${total}</span>
     </div>
-    <div style="font-size:0.68rem;color:var(--muted);margin-bottom:10px">Export your data, paste it + the prompt into Claude.ai, then paste the response back in to get next-session targets.</div>
+    <div class="prog-bar-track"><div class="prog-bar-fill" style="width:${Math.min((total%3)/3*100,100)}%"></div></div>
+    <div style="font-size:0.68rem;color:var(--muted);margin-top:6px">Cycle ${cycle} · ${total%3===0&&total>0?'Cycle complete 🎉':3-(total%3)+' day'+(3-(total%3)!==1?'s':'')+' left in cycle'}</div>
+  </div>
+
+  <!-- AI Coach card -->
+  <div class="prog-progress-card" style="margin-bottom:14px">
+    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:4px">AI Coach (manual, free)</div>
+    <div style="font-size:0.68rem;color:var(--muted);margin-bottom:10px">Export your data → paste into Claude.ai with the prompt → import suggestions back.</div>
     <div style="display:flex;gap:8px;margin-bottom:10px">
       <button onclick="exportTrainingData()" style="flex:1;padding:8px;border-radius:8px;border:none;background:var(--accent);color:#000;font-weight:600;font-size:0.72rem;cursor:pointer">⬇ Export Data</button>
       <button onclick="copyAnalysisPrompt()" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--accent);background:transparent;color:var(--accent);font-weight:600;font-size:0.72rem;cursor:pointer">📋 Copy Prompt</button>
@@ -1137,31 +1016,72 @@ function renderProgramView() {
     <textarea id="import-sug-input" placeholder="Paste Claude's JSON response here..."
       style="width:100%;box-sizing:border-box;min-height:70px;padding:8px 10px;border-radius:8px;border:1px solid var(--border,#333);background:var(--card,#1a1a1a);color:var(--text,#fff);font-size:0.72rem;margin-bottom:8px;font-family:monospace;resize:vertical"></textarea>
     <button onclick="importSuggestions()" style="width:100%;padding:8px;border-radius:8px;border:none;background:var(--accent);color:#000;font-weight:600;font-size:0.72rem;cursor:pointer">Import Suggestions</button>
-  </div>
-  <div class="prog-progress-card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-      <span style="font-size:0.78rem;color:var(--muted)">Overall Progress</span>
-      <span style="font-size:0.78rem;color:var(--accent);font-weight:600">Week ${week} of 16</span>
-    </div>
-    <div class="prog-bar-track"><div class="prog-bar-fill" style="width:${(week/16)*100}%"></div></div>
-    <div style="font-size:0.68rem;color:var(--muted);margin-top:6px">${BLOCKS[bi].label} · ${4-((week-1)%4)} week${4-((week-1)%4)!==1?'s':''} left in block</div>
   </div>`;
 
-  BLOCKS.forEach((block, i) => {
-    const isCurr = i === bi;
+  // 3-day program cards
+  WORKOUTS.forEach((workout, i) => {
+    const isCurr = i + 1 === currentDay;
     html += `<div class="block-card">
-      <div class="block-card-label${isCurr?' curr':''}">${block.label}${isCurr?' ← Current':''}</div>
-      <div class="block-card-weeks${isCurr?' curr':''}">${block.weeks}</div>
+      <div class="block-card-label${isCurr?' curr':''}">${workout.label}${isCurr?' ← Today':''}</div>
+      <div class="block-card-weeks${isCurr?' curr':''}">${workout.focus}</div>
       <div class="block-days">
-        ${['A','B'].map(d=>`<div class="block-day${isCurr?' curr':''}">
-          <div class="block-day-label">Day ${d}</div>
-          ${block[d].map(ex=>`<div class="block-ex-row">${ex.name} <span class="block-ex-sets">${ex.sets}×${ex.toFailure?'fail':ex.reps+(ex.perSide?'/s':'')}</span></div>`).join('')}
-        </div>`).join('')}
+        <div class="block-day${isCurr?' curr':''}">
+          ${workout.exercises.map(ex=>`<div class="block-ex-row">${ex.name} <span class="block-ex-sets">${ex.sets}×${ex.reps}${ex.perSide?'/s':''}</span></div>`).join('')}
+        </div>
       </div>
     </div>`;
   });
 
   document.getElementById('prog-overview').innerHTML = html;
+}
+
+function exportTrainingData() {
+  const exportObj = {
+    exportedAt: new Date().toISOString(),
+    totalWorkouts: getTotalWorkouts(),
+    currentCycle: getCurrentCycle(),
+    currentDay,
+    sessions,
+    feedbackLog,
+    existingSuggestions: suggestions
+  };
+  const blob = new Blob([JSON.stringify(exportObj, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `workout-data-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  showToast('Data exported');
+}
+
+function copyAnalysisPrompt() {
+  const prompt = `Attached is my workout tracking data from my training app (3-day glute-focused split).
+
+You are a strength coach. Analyze the data and respond ONLY as raw JSON (no markdown, no preamble):
+{"Exercise Name": "one-sentence next-session target", ...}
+
+Rules:
+- One specific target per exercise from the most recent session
+- Pain/discomfort mentioned → suggest regression or form fix
+- Too easy → bigger weight jump than standard
+- All reps hit at top of range (e.g. 10 of 8-10) → increase weight next time
+- Standard: all reps clean → add weight (2.5kg lower body, 1-2kg upper); missed reps → same weight, more reps
+- Be encouraging and specific. Only return the JSON.`;
+  navigator.clipboard.writeText(prompt).then(() => showToast('Prompt copied — paste into Claude.ai with your file'));
+}
+
+function importSuggestions() {
+  const raw = document.getElementById('import-sug-input').value.trim();
+  if (!raw) { showToast('Paste Claude\'s JSON response first'); return; }
+  try {
+    const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    Object.assign(suggestions, parsed);
+    saveSug();
+    document.getElementById('import-sug-input').value = '';
+    showToast(`Imported ${Object.keys(parsed).length} suggestion(s)`);
+  } catch(e) {
+    showToast('Couldn\'t parse — make sure it\'s valid JSON');
+  }
 }
 
 // ══════════════════════════════════════════════════════════════

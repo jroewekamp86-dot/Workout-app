@@ -492,8 +492,11 @@ const EX_INFO = {
   "Cable Pull-Through": {
     tips: ["Set cable low, stand facing away from the stack", "Hinge at hips — push them back as hands swing through legs", "Keep back flat throughout — this is a hip hinge, not a squat", "Drive hips forward to stand, squeezing glutes hard at the top", "Let the cable pull your hands back through — feel the hamstring stretch"]
   },
-  "Box Squat": {
-    tips: ["Set a bench or box at or just below parallel behind you", "Wider stance than a regular squat — sit back, not straight down", "Touch the box lightly — don't relax or rock on it", "Drive knees out as you sit and as you stand", "Push through the full foot and squeeze glutes at the top"]
+  "DB Box Squat": {
+    tips: ["Hold one dumbbell vertically at your chest (goblet style)", "Set a bench or box at or just below parallel behind you", "Wider stance than a regular squat — sit back, not straight down", "Touch the box lightly — don't relax or rock on it", "Drive knees out and squeeze glutes as you stand"]
+  },
+  "Cable Hip Abduction": {
+    tips: ["Attach the ankle cuff to the low cable, stand side-on to the stack", "Hold the machine for balance, stand tall with a soft standing knee", "Move the working leg out to the side — lead with the heel, toes forward", "Don't lean away or swing — keep hips square", "Squeeze the outer glute at the top, return slowly"]
   },
   "DB Reverse Lunge": {
     tips: ["Hold a dumbbell in each hand at your sides, chest tall", "Step straight back and lower the back knee toward the floor", "Front shin stays near vertical — weight on the front heel", "Drive through the front heel to return to standing", "Squeeze the front glute at the top of each rep"]
@@ -520,7 +523,7 @@ const WORKOUTS = [
     label: "Day 1", focus: "Glute & Back",
     exercises: [
       { name:"Barbell Hip Thrust",       cat:"Glute",      sets:2, reps:"5-6" },
-      { name:"Box Squat",                cat:"Squat",      sets:3, reps:"6-8" },
+      { name:"DB Box Squat",             cat:"Squat",      sets:3, reps:"6-8" },
       { name:"DB Reverse Lunge",         cat:"Single Leg", sets:3, reps:"10-12", perSide:true },
       { name:"DB Chest Press",           cat:"Push",       sets:3, reps:"8-10" },
       { name:"Lat Pulldown",             cat:"Pull",       sets:3, reps:"10" },
@@ -534,7 +537,7 @@ const WORKOUTS = [
       { name:"DB Step Up",               cat:"Single Leg", sets:3, reps:"6-8",   perSide:true },
       { name:"Incline DB Press",         cat:"Push",       sets:3, reps:"8-10" },
       { name:"Seated Cable Row",         cat:"Pull",       sets:3, reps:"10" },
-      { name:"Hip Abduction Machine",    cat:"Glute",      sets:3, reps:"15-20" },
+      { name:"Cable Hip Abduction",      cat:"Glute",      sets:3, reps:"15-20", perSide:true },
       { name:"Cable Glute Kickback",     cat:"Glute",      sets:2, reps:"15-20", perSide:true, bonus:true },
     ]
   },
@@ -542,7 +545,7 @@ const WORKOUTS = [
     label: "Day 3", focus: "Glute & Shoulder",
     exercises: [
       { name:"Barbell Hip Thrust",       cat:"Glute",      sets:3, reps:"8-10" },
-      { name:"Back Squat",               cat:"Squat",      sets:3, reps:"6-8" },
+      { name:"Goblet Squat",             cat:"Squat",      sets:3, reps:"8-10" },
       { name:"DB Walking Lunge",         cat:"Single Leg", sets:3, reps:"12",    perSide:true },
       { name:"Machine Shoulder Press",   cat:"Push",       sets:3, reps:"10" },
       { name:"Single Arm DB Row",        cat:"Pull",       sets:3, reps:"10",    perSide:true },
@@ -754,8 +757,9 @@ const EX_GUIDE = {
   "Cable Pull-Through":       { slug:"good-morning",                     img:"Good-Morning" },
   // New program entries — image names follow the Simply Fitness pattern but are unverified;
   // the onerror fallback in openSheet() shows a placeholder if one doesn't load.
-  "Box Squat":                { slug:"box-squat",                        img:"Box-Squat" },
-  "Back Squat":               { slug:"barbell-squat",                    img:"Barbell-Squat" },
+  "DB Box Squat":             { slug:"box-squat",                        img:"Box-Squat" },
+  "Goblet Squat":             { slug:"goblet-squat",                     img:"Goblet-Squat" },
+  "Cable Hip Abduction":      { slug:"cable-hip-abduction",              img:"Cable-Hip-Abduction" },
   "DB Reverse Lunge":         { slug:"dumbbell-reverse-lunge",           img:"Dumbbell-Reverse-Lunge" },
   "Incline DB Press":         { slug:"incline-dumbbell-bench-press",     img:"Incline-Dumbbell-Bench-Press" },
   "DB Step Up":               { slug:"dumbbell-step-up",                 img:"Dumbbell-Step-Up" },

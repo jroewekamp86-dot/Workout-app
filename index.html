@@ -213,7 +213,7 @@
   </div>
   <div class="day-selector">
     <button class="day-btn active" id="btn-1" onclick="selectDay(1)">DAY 1<small>Glute & Back</small></button>
-    <button class="day-btn" id="btn-2" onclick="selectDay(2)">DAY 2<small>Posterior & Push</small></button>
+    <button class="day-btn" id="btn-2" onclick="selectDay(2)">DAY 2<small>Posterior & Chest</small></button>
     <button class="day-btn" id="btn-3" onclick="selectDay(3)">DAY 3<small>Glute & Shoulder</small></button>
   </div>
   <div class="date-row">
@@ -466,7 +466,7 @@ const EX_INFO = {
     tips: ["Rear foot elevated on bench, front foot far enough forward", "Lower straight down — front knee tracks over toes", "Most weight on the front foot — rear leg stabilises only", "Keep torso upright — slight forward lean is OK", "Drive through front heel to stand, squeeze front glute"]
   },
   "Seated Cable Row": {
-    tips: ["Sit tall with a slight natural lean back", "Pull handle to navel — keep elbows close to body", "Squeeze shoulder blades together at the end", "Full extension forward before each rep — shoulders protract", "Don't use lower back momentum to row"]
+    tips: ["Use a V-bar / neutral grip attachment — easier on the elbows than a straight bar", "Sit tall with a slight natural lean back", "Pull handle to navel — keep elbows close to body", "Squeeze shoulder blades together at the end", "Full extension forward before each rep — shoulders protract", "Don't use lower back momentum to row"]
   },
   "Barbell RDL": {
     tips: ["Start standing with bar at hips", "Push hips back — bar slides down thighs", "Soft knee bend throughout — not a squat", "Feel hamstrings load — go to mid-shin or until back wants to round", "Drive hips through to stand — glutes lead the movement"]
@@ -491,6 +491,24 @@ const EX_INFO = {
   },
   "Cable Pull-Through": {
     tips: ["Set cable low, stand facing away from the stack", "Hinge at hips — push them back as hands swing through legs", "Keep back flat throughout — this is a hip hinge, not a squat", "Drive hips forward to stand, squeezing glutes hard at the top", "Let the cable pull your hands back through — feel the hamstring stretch"]
+  },
+  "Box Squat": {
+    tips: ["Set a bench or box at or just below parallel behind you", "Wider stance than a regular squat — sit back, not straight down", "Touch the box lightly — don't relax or rock on it", "Drive knees out as you sit and as you stand", "Push through the full foot and squeeze glutes at the top"]
+  },
+  "DB Reverse Lunge": {
+    tips: ["Hold a dumbbell in each hand at your sides, chest tall", "Step straight back and lower the back knee toward the floor", "Front shin stays near vertical — weight on the front heel", "Drive through the front heel to return to standing", "Squeeze the front glute at the top of each rep"]
+  },
+  "Incline DB Press": {
+    tips: ["Bench at a low incline (~30°) — higher shifts load to the shoulders", "Dumbbells at upper-chest level, elbows at ~45°", "Press up and slightly together without flaring elbows", "Keep shoulder blades retracted and feet flat", "Lower with control — 2 seconds down"]
+  },
+  "DB Step Up": {
+    tips: ["Use a box or bench so your knee is ~90° with the foot on top", "Drive through the heel of the working leg — don't push off the back foot", "Keep torso upright and hips square", "Stand fully tall and squeeze the glute at the top", "Lower slowly — 2-3 second negatives"]
+  },
+  "Machine Shoulder Press": {
+    tips: ["Adjust the seat so handles start at shoulder height", "Press straight up without arching your lower back", "Keep core braced and ribs down", "Fully extend without shrugging at the top", "Control the weight back down — don't let it slam"]
+  },
+  "Single Leg RDL": {
+    tips: ["Hold dumbbells in front of you, soft bend in the standing knee", "Hinge at the hip and send the free leg straight back", "Keep hips square to the floor — don't open up", "Feel the hamstring stretch before reversing", "Drive the hip through to stand and squeeze the glute"]
   }
 };
 
@@ -501,31 +519,34 @@ const WORKOUTS = [
   {
     label: "Day 1", focus: "Glute & Back",
     exercises: [
-      { name:"Barbell Hip Thrust",       cat:"Glute",      sets:4, reps:"8-10" },
-      { name:"Lat Pulldown",             cat:"Pull",       sets:3, reps:"10-12" },
-      { name:"DB Bulgarian Split Squat", cat:"Single Leg", sets:3, reps:"10-12", perSide:true },
-      { name:"Seated Cable Row",         cat:"Pull",       sets:3, reps:"10-12" },
-      { name:"Hip Abduction Machine",    cat:"Glute",      sets:3, reps:"15" },
+      { name:"Barbell Hip Thrust",       cat:"Glute",      sets:2, reps:"5-6" },
+      { name:"Box Squat",                cat:"Squat",      sets:3, reps:"6-8" },
+      { name:"DB Reverse Lunge",         cat:"Single Leg", sets:3, reps:"10-12", perSide:true },
+      { name:"DB Chest Press",           cat:"Push",       sets:3, reps:"8-10" },
+      { name:"Lat Pulldown",             cat:"Pull",       sets:3, reps:"10" },
+      { name:"Single-Leg Hip Thrust",    cat:"Glute",      sets:2, reps:"12-15", perSide:true, bonus:true },
     ]
   },
   {
     label: "Day 2", focus: "Posterior Chain & Chest",
     exercises: [
-      { name:"Barbell RDL",             cat:"Bend",       sets:4, reps:"8-10" },
-      { name:"DB Chest Press",          cat:"Push",       sets:3, reps:"10-12" },
-      { name:"Leg Press",               cat:"Squat",      sets:3, reps:"10-12" },
-      { name:"Single Arm DB Row",       cat:"Pull",       sets:3, reps:"10-12", perSide:true },
-      { name:"Cable Glute Kickback",    cat:"Glute",      sets:3, reps:"12-15", perSide:true },
+      { name:"Barbell RDL",              cat:"Bend",       sets:2, reps:"5-6" },
+      { name:"DB Step Up",               cat:"Single Leg", sets:3, reps:"6-8",   perSide:true },
+      { name:"Incline DB Press",         cat:"Push",       sets:3, reps:"8-10" },
+      { name:"Seated Cable Row",         cat:"Pull",       sets:3, reps:"10" },
+      { name:"Hip Abduction Machine",    cat:"Glute",      sets:3, reps:"15-20" },
+      { name:"Cable Glute Kickback",     cat:"Glute",      sets:2, reps:"15-20", perSide:true, bonus:true },
     ]
   },
   {
     label: "Day 3", focus: "Glute & Shoulder",
     exercises: [
-      { name:"Single-Leg Hip Thrust",   cat:"Glute",      sets:3, reps:"10-12", perSide:true },
-      { name:"DB Shoulder Press",       cat:"Push",       sets:3, reps:"10-12" },
-      { name:"DB Walking Lunge",        cat:"Single Leg", sets:3, reps:"10",    perSide:true },
-      { name:"Lat Pulldown",            cat:"Pull",       sets:3, reps:"10-12" },
-      { name:"Cable Pull-Through",      cat:"Bend",       sets:3, reps:"12" },
+      { name:"Barbell Hip Thrust",       cat:"Glute",      sets:3, reps:"8-10" },
+      { name:"Back Squat",               cat:"Squat",      sets:3, reps:"6-8" },
+      { name:"DB Walking Lunge",         cat:"Single Leg", sets:3, reps:"12",    perSide:true },
+      { name:"Machine Shoulder Press",   cat:"Push",       sets:3, reps:"10" },
+      { name:"Single Arm DB Row",        cat:"Pull",       sets:3, reps:"10",    perSide:true },
+      { name:"Single Leg RDL",           cat:"Bend",       sets:2, reps:"10-12", perSide:true, bonus:true },
     ]
   }
 ];
@@ -535,6 +556,10 @@ function getAllExercises() {
   WORKOUTS.forEach(w => w.exercises.forEach(e => {
     if (!seen.has(e.name)) { seen.add(e.name); all.push(e); }
   }));
+  // Keep history from exercises no longer in the program visible in Progress
+  sessions.forEach(s => {
+    if (!seen.has(s.exercise)) { seen.add(s.exercise); all.push({ name: s.exercise, cat: 'Previous' }); }
+  });
   return all;
 }
 
@@ -660,7 +685,7 @@ function renderExercises() {
       <div class="ex-card-header">
         <div class="ex-card-info">
           <div class="ex-card-name">${ex.name}</div>
-          <div class="ex-card-meta">${ex.cat}</div>
+          <div class="ex-card-meta">${ex.bonus ? 'Bonus · ' : ''}${ex.cat}</div>
         </div>
         <div class="ex-card-target">${targetLabel}</div>
         <button class="info-btn" onclick="openSheet('${ex.name.replace(/'/g,"\\'")}','${ex.cat}')" title="Form tips & demo">ℹ️</button>
@@ -727,6 +752,15 @@ const EX_GUIDE = {
   "DB Shoulder Press":        { slug:"dumbbell-shoulder-press",          img:"Dumbbell-Shoulder-Press" },
   "DB Walking Lunge":         { slug:"lunge",                            img:"Lunge" },
   "Cable Pull-Through":       { slug:"good-morning",                     img:"Good-Morning" },
+  // New program entries — image names follow the Simply Fitness pattern but are unverified;
+  // the onerror fallback in openSheet() shows a placeholder if one doesn't load.
+  "Box Squat":                { slug:"box-squat",                        img:"Box-Squat" },
+  "Back Squat":               { slug:"barbell-squat",                    img:"Barbell-Squat" },
+  "DB Reverse Lunge":         { slug:"dumbbell-reverse-lunge",           img:"Dumbbell-Reverse-Lunge" },
+  "Incline DB Press":         { slug:"incline-dumbbell-bench-press",     img:"Incline-Dumbbell-Bench-Press" },
+  "DB Step Up":               { slug:"dumbbell-step-up",                 img:"Dumbbell-Step-Up" },
+  "Machine Shoulder Press":   { slug:"machine-shoulder-press",           img:"Machine-Shoulder-Press" },
+  "Single Leg RDL":           { slug:"dumbbell-single-leg-deadlift",     img:"Dumbbell-Single-Leg-Deadlift" },
 };
 
 function openSheet(name, cat) {
@@ -1026,7 +1060,7 @@ function renderProgramView() {
       <div class="block-card-weeks${isCurr?' curr':''}">${workout.focus}</div>
       <div class="block-days">
         <div class="block-day${isCurr?' curr':''}">
-          ${workout.exercises.map(ex=>`<div class="block-ex-row">${ex.name} <span class="block-ex-sets">${ex.sets}×${ex.reps}${ex.perSide?'/s':''}</span></div>`).join('')}
+          ${workout.exercises.map(ex=>`<div class="block-ex-row">${ex.bonus?'<span style="color:var(--accent)">★</span> ':''}${ex.name} <span class="block-ex-sets">${ex.sets}×${ex.reps}${ex.perSide?'/s':''}</span></div>`).join('')}
         </div>
       </div>
     </div>`;
